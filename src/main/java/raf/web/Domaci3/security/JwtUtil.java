@@ -3,6 +3,7 @@ package raf.web.Domaci3.security;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import org.springframework.stereotype.Component;
+import raf.web.Domaci3.model.User;
 
 import java.util.Date;
 import java.util.Map;
@@ -17,6 +18,10 @@ public class JwtUtil {
     public String extractEmail(String token){
         token = token.replace(Tokens.PREFIX,"");
         return JWT.decode(token).getClaim("email").asString();
+    }
+
+    public boolean validateToken(String token, User user){
+        return (user.getEmail().equals(extractEmail(token)) && !isTokenExpired(token));
     }
 
     public boolean isTokenExpired(String token){
