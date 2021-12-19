@@ -11,11 +11,12 @@ import java.util.Map;
 public class JwtUtil {
 
     public String generateToken(String email){
-        return JWT.create().withExpiresAt(new Date(System.currentTimeMillis()+(2*60*60*1000))).withClaim("email",Tokens.PREFIX+email).sign(Algorithm.HMAC512(Tokens.SECRET.getBytes()));
+        return Tokens.PREFIX+JWT.create().withExpiresAt(new Date(System.currentTimeMillis()+(2*60*60*1000))).withClaim("email",email).sign(Algorithm.HMAC512(Tokens.SECRET.getBytes()));
     }
 
     public String extractEmail(String token){
-        return JWT.decode(token).getClaim("email").asString().replace(Tokens.PREFIX,"");
+        token = token.replace(Tokens.PREFIX,"");
+        return JWT.decode(token).getClaim("email").asString();
     }
 
     public boolean isTokenExpired(String token){

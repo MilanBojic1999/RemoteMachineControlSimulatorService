@@ -3,6 +3,7 @@ package raf.web.Domaci3.model;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 @Entity
@@ -26,11 +27,23 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @ElementCollection(fetch = FetchType.EAGER)
-    private List<Permissions> permissionsList = new ArrayList<>();
+    private Collection<Permissions> permissionsList;
 
 
     public Long getUserId() {
         return userId;
+    }
+
+    public User() {
+        permissionsList = new HashSet();
+    }
+
+    public User(String firstname, String lastname, String email, String password) {
+        this();
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.email = email;
+        this.password = password;
     }
 
     public void setUserId(Long userId) {
@@ -69,11 +82,19 @@ public class User {
         this.password = password;
     }
 
-    public List<Permissions> getPermissionsList() {
+    public Collection<Permissions> getPermissionsList() {
         return permissionsList;
     }
 
-    public void setPermissionsList(List<Permissions> permissionsList) {
+    public void setPermissionsList(Collection<Permissions> permissionsList) {
         this.permissionsList = permissionsList;
+    }
+
+    public boolean addPermission(Permissions permissions){
+        return permissionsList.add(permissions);
+    }
+
+    public boolean removePermission(Permissions permissions){
+        return permissionsList.remove(permissions);
     }
 }
