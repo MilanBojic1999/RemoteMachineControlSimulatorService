@@ -1,13 +1,10 @@
 package raf.web.Domaci3.model;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 @Entity
-
+@Table(name = "my_user")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,8 +23,9 @@ public class User {
     private String password;
 
     @Enumerated(EnumType.STRING)
-    @ElementCollection(fetch = FetchType.EAGER)
-    private Collection<Permissions> permissionsList;
+    @ElementCollection(targetClass = PermissionsEnum.class)
+    @JoinTable(name = "permissions", joinColumns = @JoinColumn(name = "user_id"))
+    private List<PermissionsEnum> permissionsEnumList;
 
 
     public Long getUserId() {
@@ -35,7 +33,7 @@ public class User {
     }
 
     public User() {
-        permissionsList = new HashSet();
+        permissionsEnumList = new ArrayList<>();
     }
 
     public User(String firstname, String lastname, String email, String password) {
@@ -82,19 +80,19 @@ public class User {
         this.password = password;
     }
 
-    public Collection<Permissions> getPermissionsList() {
-        return permissionsList;
+    public Collection<PermissionsEnum> getPermissionsList() {
+        return permissionsEnumList;
     }
 
-    public void setPermissionsList(Collection<Permissions> permissionsList) {
-        this.permissionsList = permissionsList;
+    public void setPermissionsList(List<PermissionsEnum> permissionsEnumList) {
+        this.permissionsEnumList = permissionsEnumList;
     }
 
-    public boolean addPermission(Permissions permissions){
-        return permissionsList.add(permissions);
+    public boolean addPermission(PermissionsEnum permissionsEnum){
+        return permissionsEnumList.add(permissionsEnum);
     }
 
-    public boolean removePermission(Permissions permissions){
-        return permissionsList.remove(permissions);
+    public boolean removePermission(PermissionsEnum permissionsEnum){
+        return permissionsEnumList.remove(permissionsEnum);
     }
 }

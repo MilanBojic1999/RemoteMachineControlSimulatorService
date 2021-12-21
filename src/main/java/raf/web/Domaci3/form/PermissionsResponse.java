@@ -1,19 +1,18 @@
 package raf.web.Domaci3.form;
 
-import raf.web.Domaci3.model.Permissions;
+import raf.web.Domaci3.model.PermissionsEnum;
 
 import java.util.Collection;
-import java.util.List;
 
 public class PermissionsResponse {
 
-    private final Collection<Permissions> permissionsList;
+    private final Collection<PermissionsEnum> permissionsEnumList;
 
-    public PermissionsResponse(Collection<Permissions> permissionsList) {
-        this.permissionsList = permissionsList;
+    public PermissionsResponse(Collection<PermissionsEnum> permissionsEnumList) {
+        this.permissionsEnumList = permissionsEnumList;
     }
 
-    public Collection<Permissions> getPermissionsList() {
-        return permissionsList;
+    public Collection<PermissionsEnum> getPermissionsList() {
+        return permissionsEnumList;
     }
 }

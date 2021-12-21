@@ -31,7 +31,7 @@ public class MainController {
         this.jwtUtil = jwtUtil;
     }
 
-    @PostMapping(Paths.LOGIN_PATH)
+    @GetMapping(Paths.LOGIN_PATH)
     public ResponseEntity<String> login(@RequestBody LoginForm form){
         try{
             Optional<User> userOptional = userRepository.findByEmail(form.getEmail());
