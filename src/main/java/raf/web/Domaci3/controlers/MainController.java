@@ -12,6 +12,7 @@ import raf.web.Domaci3.model.User;
 import raf.web.Domaci3.repositories.IUserRepository;
 import raf.web.Domaci3.security.JwtUtil;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,7 +48,7 @@ public class MainController {
         }
     }
 
-    @GetMapping("/permms")
+    @GetMapping("/permits")
     public ResponseEntity<PermissionsResponse> getPermissions(@RequestParam("id") long id){
         try{
             Optional<User> userOptional = userRepository.findByUserId(id);
@@ -65,7 +66,7 @@ public class MainController {
         }
     }
 
-    @GetMapping("/{id}")
+    @GetMapping(Paths.INFO_USERS_PATH+"/{id}")
     public ResponseEntity<User> getUserById(@PathVariable long id){
         try{
             Optional<User> userOptional = userRepository.findByUserId(id);
@@ -81,22 +82,22 @@ public class MainController {
         }
     }
 
-    @GetMapping("/all")
+    @GetMapping(Paths.SHOW_USERS_PATH+"/all")
     public List<User> getAllUsers(){
         return userRepository.findAll();
     }
 
-    @PostMapping("/create")
+    @PostMapping(Paths.ADD_USERS_PATH)
     public User createUser(@RequestBody User user){
         return userRepository.save(user);
     }
 
-    @PostMapping("/change")
+    @PostMapping(Paths.EDIT_USERS_PATH)
     public User updateUser(@RequestParam User user){
         return userRepository.save(user);
     }
 
-    @PostMapping("/delete")
+    @PostMapping(Paths.EDIT_USERS_PATH+"/delete")
     public void deleteUser(@RequestParam User user){
         userRepository.delete(user);
     }
