@@ -29,7 +29,7 @@ public class UserService implements UserDetailsService {
             throw new UsernameNotFoundException("Email "+email+" not found");
         }
         User myUser = myUserOpt.get();
-        return new org.springframework.security.core.userdetails.User(myUser.getEmail(), myUser.getPassword(), new ArrayList<>());
+        return new org.springframework.security.core.userdetails.User(myUser.getEmail(), myUser.getPassword(), myUser.getPermissionsList());
 
     }
 }
