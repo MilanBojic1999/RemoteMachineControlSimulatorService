@@ -11,11 +11,13 @@ import raf.web.Domaci3.form.LoginForm;
 import raf.web.Domaci3.form.PermissionsResponse;
 import raf.web.Domaci3.model.User;
 import raf.web.Domaci3.repositories.IUserRepository;
+import raf.web.Domaci3.response_request.UserDto;
 import raf.web.Domaci3.security.JwtUtil;
 
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("")
@@ -84,8 +86,13 @@ public class MainController {
     }
 
     @GetMapping(Paths.SHOW_USERS_PATH+"/all")
-    public List<User> getAllUsers(){
-        return userRepository.findAll();
+    public List<UserDto> getAllUsers(){
+        List<User> users =  userRepository.findAll();
+        return users.stream().map(this::userToDto).collect(Collectors.toList());
+    }
+
+    public UserDto userToDto(User user){
+        return new UserDto(user.getUserId(),user.getFirstname(), user.getLastname(), user.getEmail(), user.getPermissionsList());
     }
 
     @PostMapping(Paths.ADD_USERS_PATH)

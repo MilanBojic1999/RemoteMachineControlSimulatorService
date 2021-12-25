@@ -23,9 +23,9 @@ public class User {
     private String password;
 
     @Enumerated(EnumType.STRING)
-    @ElementCollection(targetClass = PermissionsEnum.class)
+    @ElementCollection(targetClass = PermissionsEnum.class, fetch = FetchType.EAGER)
     @JoinTable(name = "permissions", joinColumns = @JoinColumn(name = "user_id"))
-    private List<PermissionsEnum> permissionsEnumList;
+    private Collection<PermissionsEnum> permissionsEnumList;
 
 
     public Long getUserId() {
@@ -94,5 +94,17 @@ public class User {
 
     public boolean removePermission(PermissionsEnum permissionsEnum){
         return permissionsEnumList.remove(permissionsEnum);
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "userId=" + userId +
+                ", firstname='" + firstname + '\'' +
+                ", lastname='" + lastname + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", permissionsEnumList=" + permissionsEnumList +
+                '}';
     }
 }

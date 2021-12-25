@@ -1,5 +1,6 @@
 package raf.web.Domaci3.services;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -7,6 +8,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import raf.web.Domaci3.model.User;
 import raf.web.Domaci3.repositories.IUserRepository;
+import raf.web.Domaci3.response_request.UserDto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +31,10 @@ public class UserService implements UserDetailsService {
             throw new UsernameNotFoundException("Email "+email+" not found");
         }
         User myUser = myUserOpt.get();
+        //Hibernate.initialize(myUser.getPermissionsList());
         return new org.springframework.security.core.userdetails.User(myUser.getEmail(), myUser.getPassword(), myUser.getPermissionsList());
 
     }
+
+
 }
