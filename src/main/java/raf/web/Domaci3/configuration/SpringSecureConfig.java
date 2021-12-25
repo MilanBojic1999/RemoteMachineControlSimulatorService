@@ -11,6 +11,7 @@ import raf.web.Domaci3.Paths;
 import raf.web.Domaci3.model.PermissionsEnum;
 import raf.web.Domaci3.model.User;
 import raf.web.Domaci3.repositories.IUserRepository;
+import raf.web.Domaci3.security.JWTAuthorization;
 import raf.web.Domaci3.security.JwtFilter;
 
 @EnableWebSecurity
@@ -19,9 +20,10 @@ public class SpringSecureConfig extends WebSecurityConfigurerAdapter {
     private BCryptPasswordEncoder encoder;
     private IUserRepository userRepository;
     private JwtFilter jwtFilter;
+    private JWTAuthorization jwtAuthorization;
 
     @Autowired
-    public SpringSecureConfig(BCryptPasswordEncoder encoder,IUserRepository userRepository,JwtFilter jwtFilter) {
+    public SpringSecureConfig(BCryptPasswordEncoder encoder,IUserRepository userRepository,JwtFilter jwtFilter,JWTAuthorization jwtAuthorization) {
         super();
         this.encoder = encoder;
         this.userRepository = userRepository;
@@ -36,6 +38,7 @@ public class SpringSecureConfig extends WebSecurityConfigurerAdapter {
             userRepository.saveAndFlush(root);
         }
         this.jwtFilter = jwtFilter;
+        this.jwtAuthorization = jwtAuthorization;
     }
 
     @Override
@@ -47,6 +50,7 @@ public class SpringSecureConfig extends WebSecurityConfigurerAdapter {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         http.addFilterBefore(this.jwtFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAfter(this.jwtAuthorization,UsernamePasswordAuthenticationFilter.class);
     }
 
 }
