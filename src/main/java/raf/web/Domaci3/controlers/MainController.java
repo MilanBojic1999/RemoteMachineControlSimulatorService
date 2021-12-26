@@ -10,9 +10,11 @@ import org.springframework.web.bind.annotation.*;
 import raf.web.Domaci3.Paths;
 import raf.web.Domaci3.form.LoginForm;
 import raf.web.Domaci3.form.PermissionsResponse;
+import raf.web.Domaci3.model.PermissionsEnum;
 import raf.web.Domaci3.model.User;
 import raf.web.Domaci3.repositories.IUserRepository;
 import raf.web.Domaci3.response_request.UserDto;
+import raf.web.Domaci3.response_request.UserRequest;
 import raf.web.Domaci3.security.JwtUtil;
 
 import java.nio.file.Path;
@@ -106,18 +108,37 @@ public class MainController {
     }
 
     @PostMapping(Paths.ADD_USERS_PATH)
-    public User createUser(@RequestBody User user){
+    public User createUser(@RequestBody UserRequest userRequest){
+        if(userRequest.getEmail().isEmpty() || userRequest.getFirstname().isEmpty() || userRequest.getLastname().isEmpty() || userRequest.getPassword().isEmpty())
+            return null;
+
+        User user = new User(userRequest.getFirstname(),userRequest.getLastname(),userRequest.getEmail(), this.encoder.encode(userRequest.getPassword()));
+
         return userRepository.save(user);
     }
 
     @PostMapping(Paths.EDIT_USERS_PATH)
-    public User updateUser(@RequestParam User user){
-        return userRepository.save(user);
+    public ResponseEntity<User> updateUser(@RequestParam UserRequest userRequest){
+
+        if(userRequest.getEmail().isEmpty() || userRequest.getFirstname().isEmpty() || userRequest.getLastname().isEmpty())
+            return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);
+
+        User user = userRepository.getById(userRequest.getUserId());
+
+        user.setEmail(userRequest.getEmail());
+        user.setFirstname(userRequest.getFirstname());
+        user.setLastname(userRequest.getLastname());
+        user.setPassword(this.encoder.encode(user.getPassword()));
+        user.setPermissionsList((List<PermissionsEnum>) userRequest.getPermissions());
+
+        User ret = userRepository.save(user);
+
+        return new ResponseEntity<>(ret,HttpStatus.OK);
     }
 
     @PostMapping(Paths.EDIT_USERS_PATH+"/delete")
-    public void deleteUser(@RequestParam User user){
-        userRepository.delete(user);
+    public void deleteUser(@RequestParam("id") long id){
+        userRepository.deleteById(id);
     }
 
 }
