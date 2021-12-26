@@ -1,5 +1,6 @@
 package raf.web.Domaci3.controlers;
 
+import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,26 +16,31 @@ import raf.web.Domaci3.response_request.UserDto;
 import raf.web.Domaci3.security.JwtUtil;
 
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
+@CrossOrigin
 @RequestMapping("")
 public class MainController {
 
     private IUserRepository userRepository;
     private BCryptPasswordEncoder encoder;
     private JwtUtil jwtUtil;
+    private Gson gson;
 
     @Autowired
     public MainController(IUserRepository userRepository,BCryptPasswordEncoder encoder,JwtUtil jwtUtil) {
         this.userRepository = userRepository;
         this.encoder = encoder;
         this.jwtUtil = jwtUtil;
+        this.gson = new Gson();
     }
 
-    @GetMapping(Paths.LOGIN_PATH)
+    @PostMapping(Paths.LOGIN_PATH)
     public ResponseEntity<String> login(@RequestBody LoginForm form){
         try{
             Optional<User> userOptional = userRepository.findByEmail(form.getEmail());
@@ -42,9 +48,13 @@ public class MainController {
                 throw new Exception("There is no user with given email");
 
             User user = userOptional.get();
+            System.out.println("Logged user "+user.getUserId());
+            String jwt = jwtUtil.generateToken(user.getEmail());
+            Map<String,String> map = new HashMap<>();
+            map.put("jwt",jwt);
+            String jsn = gson.toJson(map);
 
-
-            return new ResponseEntity<>(jwtUtil.generateToken(form.getEmail()),HttpStatus.ACCEPTED);
+            return new ResponseEntity<>(jsn,HttpStatus.ACCEPTED);
         }catch (Exception e){
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

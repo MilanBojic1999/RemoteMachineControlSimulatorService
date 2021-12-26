@@ -14,6 +14,7 @@ import raf.web.Domaci3.repositories.IUserRepository;
 import raf.web.Domaci3.security.JWTAuthorization;
 import raf.web.Domaci3.security.JwtFilter;
 
+
 @EnableWebSecurity
 public class SpringSecureConfig extends WebSecurityConfigurerAdapter {
 
@@ -44,7 +45,8 @@ public class SpringSecureConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         //super.configure(http);
-        http.cors().and().csrf().disable().authorizeRequests().antMatchers(Paths.LOGIN_PATH+"/**").permitAll()
+        System.out.println(Paths.LOGIN_PATH+"*");
+        http.cors().and().csrf().disable().authorizeRequests().antMatchers(Paths.LOGIN_PATH+"*").permitAll()
                 .anyRequest().authenticated()
                 .and().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
@@ -52,5 +54,7 @@ public class SpringSecureConfig extends WebSecurityConfigurerAdapter {
         http.addFilterBefore(this.jwtFilter, UsernamePasswordAuthenticationFilter.class);
         http.addFilterAfter(this.jwtAuthorization,UsernamePasswordAuthenticationFilter.class);
     }
+
+
 
 }

@@ -46,34 +46,35 @@ public class JWTAuthorization extends OncePerRequestFilter {
             email = jwtUtil.extractEmail(jwt);
         }
 
-        UserDetails userDetails = service.loadUserByUsername(email);
+        if(email!=null) {
+            UserDetails userDetails = service.loadUserByUsername(email);
 
-        Collection<PermissionsEnum> permissions = (Collection<PermissionsEnum>) userDetails.getAuthorities();
+            Collection<PermissionsEnum> permissions = (Collection<PermissionsEnum>) userDetails.getAuthorities();
 
-        String uri = request.getRequestURI();
-        System.out.println(uri);
+            String uri = request.getRequestURI();
+            System.out.println(uri);
 
-        UsernamePasswordAuthenticationToken auth = null;
-        boolean flagAuth;
-        if(uri.startsWith(Paths.SHOW_USERS_PATH)){
-            flagAuth = permissions.contains(PermissionsEnum.CAN_READ_USERS);
-        }else if(uri.startsWith(Paths.EDIT_USERS_PATH)){
-            if(uri.endsWith("/delete"))
-                flagAuth = permissions.contains(PermissionsEnum.CAN_DELETE_USERS);
-            else
-                flagAuth = permissions.contains(PermissionsEnum.CAN_UPDATE_USERS);
-        }else if(uri.startsWith(Paths.ADD_USERS_PATH)){
-            flagAuth = permissions.contains(PermissionsEnum.CAN_CREATE_USERS);
-        }else{
-            System.err.println("IDK what is this");
-            flagAuth = true;
+            UsernamePasswordAuthenticationToken auth = null;
+            boolean flagAuth;
+            if (uri.startsWith(Paths.SHOW_USERS_PATH)) {
+                flagAuth = permissions.contains(PermissionsEnum.CAN_READ_USERS);
+            } else if (uri.startsWith(Paths.EDIT_USERS_PATH)) {
+                if (uri.endsWith("/delete"))
+                    flagAuth = permissions.contains(PermissionsEnum.CAN_DELETE_USERS);
+                else
+                    flagAuth = permissions.contains(PermissionsEnum.CAN_UPDATE_USERS);
+            } else if (uri.startsWith(Paths.ADD_USERS_PATH)) {
+                flagAuth = permissions.contains(PermissionsEnum.CAN_CREATE_USERS);
+            } else {
+                System.err.println("IDK what is this");
+                flagAuth = true;
+            }
+
+            if (flagAuth)
+                auth = new UsernamePasswordAuthenticationToken(email, null, userDetails.getAuthorities());
+
+            SecurityContextHolder.getContext().setAuthentication(auth);
         }
-
-        if(flagAuth)
-            auth = new UsernamePasswordAuthenticationToken(email,null,userDetails.getAuthorities());
-
-        SecurityContextHolder.getContext().setAuthentication(auth);
-
         chain.doFilter(request, response);
     }
 }
