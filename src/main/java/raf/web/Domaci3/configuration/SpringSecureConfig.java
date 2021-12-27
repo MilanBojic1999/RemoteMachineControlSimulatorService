@@ -35,8 +35,9 @@ public class SpringSecureConfig extends WebSecurityConfigurerAdapter {
             root.addPermission(PermissionsEnum.CAN_READ_USERS);
             root.addPermission(PermissionsEnum.CAN_UPDATE_USERS);
             User user1 = new User("Milan","Bojic","mbojic12@raf.rs","milan");
+
+            userRepository.save(root);
             userRepository.save(user1);
-            userRepository.saveAndFlush(root);
         }
         this.jwtFilter = jwtFilter;
         this.jwtAuthorization = jwtAuthorization;

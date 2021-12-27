@@ -51,7 +51,7 @@ public class MainController {
 
             User user = userOptional.get();
             System.out.println("Logged user "+user.getUserId());
-            String jwt = jwtUtil.generateToken(user.getEmail());
+            String jwt = jwtUtil.generateToken(user.getEmail(),(List<PermissionsEnum>)user.getPermissionsList());
             Map<String,String> map = new HashMap<>();
             map.put("jwt",jwt);
             String jsn = gson.toJson(map);
