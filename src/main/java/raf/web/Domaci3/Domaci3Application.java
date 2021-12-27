@@ -14,6 +14,6 @@ public class Domaci3Application {
 
 	@Bean
 	public BCryptPasswordEncoder bCryptPasswordEncoder(){
-		return new BCryptPasswordEncoder();
+		return new BCryptPasswordEncoder(5);
 	}
 }

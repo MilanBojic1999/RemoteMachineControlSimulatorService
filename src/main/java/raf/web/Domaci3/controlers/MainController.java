@@ -50,6 +50,9 @@ public class MainController {
                 throw new Exception("There is no user with given email");
 
             User user = userOptional.get();
+            if(!encoder.matches(form.getPassword(),user.getPassword()))
+                throw new Exception("There is wrong pwd");
+
             System.out.println("Logged user "+user.getUserId());
             String jwt = jwtUtil.generateToken(user.getEmail(),(List<PermissionsEnum>)user.getPermissionsList());
             Map<String,String> map = new HashMap<>();
@@ -59,7 +62,7 @@ public class MainController {
             return new ResponseEntity<>(jsn,HttpStatus.ACCEPTED);
         }catch (Exception e){
             e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("",HttpStatus.BAD_REQUEST);
         }
     }
 
