@@ -108,17 +108,24 @@ public class MainController {
     }
 
     @PostMapping(Paths.ADD_USERS_PATH)
-    public User createUser(@RequestBody UserRequest userRequest){
+    public ResponseEntity<UserDto> createUser(@RequestBody UserRequest userRequest){
         if(userRequest.getEmail().isEmpty() || userRequest.getFirstname().isEmpty() || userRequest.getLastname().isEmpty() || userRequest.getPassword().isEmpty())
             return null;
+        try {
+            User user = new User(userRequest.getFirstname(), userRequest.getLastname(), userRequest.getEmail(), this.encoder.encode(userRequest.getPassword()));
+            user.setPermissionsList((List<PermissionsEnum>) userRequest.getPermissions());
 
-        User user = new User(userRequest.getFirstname(),userRequest.getLastname(),userRequest.getEmail(), this.encoder.encode(userRequest.getPassword()));
+            User inp = userRepository.save(user);
 
-        return userRepository.save(user);
+            return new ResponseEntity<>(userToDto(inp), HttpStatus.OK);
+        }catch (Exception e){
+            e.printStackTrace();
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
     }
 
     @PostMapping(Paths.EDIT_USERS_PATH)
-    public ResponseEntity<User> updateUser(@RequestParam UserRequest userRequest){
+    public ResponseEntity<UserDto> updateUser(@RequestBody UserRequest userRequest){
 
         if(userRequest.getEmail().isEmpty() || userRequest.getFirstname().isEmpty() || userRequest.getLastname().isEmpty())
             return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);
@@ -131,9 +138,9 @@ public class MainController {
         user.setPassword(this.encoder.encode(user.getPassword()));
         user.setPermissionsList((List<PermissionsEnum>) userRequest.getPermissions());
 
-        User ret = userRepository.save(user);
-
-        return new ResponseEntity<>(ret,HttpStatus.OK);
+        User tmp = userRepository.save(user);
+        UserDto res = userToDto(tmp);
+        return new ResponseEntity<>(res,HttpStatus.OK);
     }
 
     @PostMapping(Paths.EDIT_USERS_PATH+"/delete")

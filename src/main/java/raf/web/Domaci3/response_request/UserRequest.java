@@ -78,4 +78,16 @@ public class UserRequest {
     public void setPermissions(Collection<PermissionsEnum> permissions) {
         this.permissions = permissions;
     }
+
+    @Override
+    public String toString() {
+        return "UserRequest{" +
+                "userId=" + userId +
+                ", firstname='" + firstname + '\'' +
+                ", lastname='" + lastname + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", permissions=" + permissions +
+                '}';
+    }
 }
