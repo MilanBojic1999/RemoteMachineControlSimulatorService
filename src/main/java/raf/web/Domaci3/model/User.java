@@ -1,5 +1,7 @@
 package raf.web.Domaci3.model;
 
+import org.springframework.lang.Nullable;
+
 import javax.persistence.*;
 import java.util.*;
 
@@ -10,16 +12,16 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
-    @Column
+    @Column(nullable = false)
     private String firstname;
 
-    @Column
+    @Column(nullable = false)
     private String lastname;
 
-    @Column(unique = true)
+    @Column(unique = true,nullable = false)
     private String email;
 
-    @Column
+    @Column(nullable = false)
     private String password;
 
     @Enumerated(EnumType.STRING)
