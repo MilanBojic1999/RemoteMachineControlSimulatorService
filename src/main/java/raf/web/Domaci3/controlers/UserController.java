@@ -26,8 +26,8 @@ import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin
-@RequestMapping("")
-public class MainController {
+@RequestMapping("/users")
+public class UserController {
 
     private IUserRepository userRepository;
     private BCryptPasswordEncoder encoder;
@@ -35,7 +35,7 @@ public class MainController {
     private Gson gson;
 
     @Autowired
-    public MainController(IUserRepository userRepository,BCryptPasswordEncoder encoder,JwtUtil jwtUtil) {
+    public UserController(IUserRepository userRepository, BCryptPasswordEncoder encoder, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
         this.encoder = encoder;
         this.jwtUtil = jwtUtil;
@@ -138,7 +138,7 @@ public class MainController {
         user.setEmail(userRequest.getEmail());
         user.setFirstname(userRequest.getFirstname());
         user.setLastname(userRequest.getLastname());
-        user.setPassword(this.encoder.encode(user.getPassword()));
+        user.setPassword(this.encoder.encode(userRequest.getPassword()));
         user.setPermissionsList((List<PermissionsEnum>) userRequest.getPermissions());
 
         User tmp = userRepository.save(user);
