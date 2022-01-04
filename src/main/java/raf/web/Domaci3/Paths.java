@@ -8,4 +8,11 @@ public final class Paths {
     public static final String INFO_USERS_PATH = "/info";
     public static final String EDIT_USERS_PATH = "/edit";
 
+
+    public static final String SEARCH_MACHINE = "/search";
+    public static final String START_MACHINE = "/start";
+    public static final String STOP_MACHINE = "/stop";
+    public static final String RESTART_MACHINE = "/restart";
+    public static final String CREATE_MACHINE = "/create";
+    public static final String DESTROY_MACHINE = "/destroy";
 }
