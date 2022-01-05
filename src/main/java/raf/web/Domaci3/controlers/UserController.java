@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin
-@RequestMapping("/users")
+@RequestMapping(Paths.USER_PATH)
 public class UserController {
 
     private IUserRepository userRepository;

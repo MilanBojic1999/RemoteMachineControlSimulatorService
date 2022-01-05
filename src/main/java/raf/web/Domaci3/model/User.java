@@ -25,7 +25,7 @@ public class User {
     private String password;
 
     @Enumerated(EnumType.STRING)
-    @ElementCollection(targetClass = PermissionsEnum.class, fetch = FetchType.EAGER)
+    @ElementCollection(targetClass = PermissionsEnum.class, fetch = FetchType.LAZY)
     @JoinTable(name = "permissions", joinColumns = @JoinColumn(name = "user_id"))
     private Collection<PermissionsEnum> permissionsEnumList;
 

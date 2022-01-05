@@ -2,6 +2,9 @@ package raf.web.Domaci3;
 
 public final class Paths {
 
+    public static final String USER_PATH = "/user";
+    public static final String MACHINE_PATH = "/machine";
+
     public static final String LOGIN_PATH = "/login";
     public static final String SHOW_USERS_PATH = "/show";
     public static final String ADD_USERS_PATH = "/add";
