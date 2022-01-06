@@ -1,7 +1,5 @@
 package raf.web.Domaci3.model;
 
-import org.springframework.lang.Nullable;
-
 import javax.persistence.*;
 import java.util.*;
 
@@ -10,7 +8,7 @@ import java.util.*;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userId;
+    private Long user_id;
 
     @Column(nullable = false)
     private String firstname;
@@ -31,7 +29,7 @@ public class User {
 
 
     public Long getUserId() {
-        return userId;
+        return user_id;
     }
 
     public User() {
@@ -46,8 +44,8 @@ public class User {
         this.password = password;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setUserId(Long user_id) {
+        this.user_id = user_id;
     }
 
     public String getFirstname() {
@@ -101,7 +99,7 @@ public class User {
     @Override
     public String toString() {
         return "User{" +
-                "userId=" + userId +
+                "userId=" + user_id +
                 ", firstname='" + firstname + '\'' +
                 ", lastname='" + lastname + '\'' +
                 ", email='" + email + '\'' +

@@ -36,5 +36,13 @@ public class UserService implements UserDetailsService {
 
     }
 
+    public User getUserByEmail(String email){
+        Optional<User> myUserOpt = this.repository.findByEmail(email);
+        if(!myUserOpt.isPresent()) {
+            throw new UsernameNotFoundException("Email "+email+" not found");
+        }
+        return myUserOpt.get();
+    }
+
 
 }
