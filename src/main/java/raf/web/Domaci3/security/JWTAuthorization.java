@@ -1,18 +1,15 @@
 package raf.web.Domaci3.security;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import raf.web.Domaci3.Paths;
 import raf.web.Domaci3.model.PermissionsEnum;
 import raf.web.Domaci3.services.UserService;
+import raf.web.Domaci3.util.JwtUtil;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;

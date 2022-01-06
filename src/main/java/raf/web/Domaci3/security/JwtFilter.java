@@ -6,16 +6,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import raf.web.Domaci3.model.User;
-import raf.web.Domaci3.repositories.IUserRepository;
 import raf.web.Domaci3.services.UserService;
+import raf.web.Domaci3.util.JwtUtil;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Optional;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {

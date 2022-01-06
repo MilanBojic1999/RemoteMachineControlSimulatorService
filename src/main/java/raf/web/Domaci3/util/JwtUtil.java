@@ -1,4 +1,4 @@
-package raf.web.Domaci3.security;
+package raf.web.Domaci3.util;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import raf.web.Domaci3.model.PermissionsEnum;
 import raf.web.Domaci3.model.User;
+import raf.web.Domaci3.security.Tokens;
 
 import java.util.Collection;
 import java.util.Date;

@@ -8,11 +8,14 @@ import raf.web.Domaci3.Paths;
 import raf.web.Domaci3.model.Machine;
 import raf.web.Domaci3.model.StatusEnum;
 import raf.web.Domaci3.model.User;
-import raf.web.Domaci3.security.JwtUtil;
+import raf.web.Domaci3.util.JwtUtil;
 import raf.web.Domaci3.security.Tokens;
 import raf.web.Domaci3.services.MachineService;
 import raf.web.Domaci3.services.UserService;
+import raf.web.Domaci3.util.MachineRestartRunnable;
+import raf.web.Domaci3.util.MachineRunnable;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
@@ -28,6 +31,11 @@ public class MachineController {
 
     private Random random;
 
+    @GetMapping(Paths.SEARCH_MACHINE)
+    public ResponseEntity<List<Machine>> searchMachines(){
+        return null;
+    }
+
     @PutMapping(path = Paths.START_MACHINE)
     public ResponseEntity<String> startMachine(@RequestParam("id") long id){
         try{
@@ -38,18 +46,12 @@ public class MachineController {
             Machine machine = machineOptional.get();
             if(machine.getStatus()== StatusEnum.RUNNING)
                 throw new Exception("Machine is RUNNING, but shouldn't");
-            Runnable runnable = () -> {
-                int sleep_time = 10 + random.nextInt(10);
-                try {
-                    Thread.sleep(sleep_time*1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                machine.setStatus(StatusEnum.RUNNING);
-            };
 
-            Thread thread = new Thread(runnable);
+            int time = 10 + random.nextInt(10);
+
+            Thread thread = new Thread(new MachineRunnable(machine,StatusEnum.RUNNING,time));
             thread.start();
+
             return new ResponseEntity<>("Machine ("+id+") should start",HttpStatus.OK);
         }catch (Exception e){
             e.printStackTrace();
@@ -59,12 +61,50 @@ public class MachineController {
 
     @PutMapping(path = Paths.STOP_MACHINE)
     public ResponseEntity<String> stopMachine(@RequestParam("id") long id){
-        return null;
+        try{
+            Optional<Machine> machineOptional = machineService.findById(id);
+            if(!machineOptional.isPresent())
+                throw new Exception("Couldn't find machine: "+id);
+
+            Machine machine = machineOptional.get();
+            if(machine.getStatus()== StatusEnum.STOPPED)
+                throw new Exception("Machine is STOPPED, but shouldn't");
+
+            int time = 10 + random.nextInt(10);
+
+            Thread thread = new Thread(new MachineRunnable(machine,StatusEnum.STOPPED,time));
+            thread.start();
+
+            return new ResponseEntity<>("Machine ("+id+") should stop",HttpStatus.OK);
+        }catch (Exception e){
+            e.printStackTrace();
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+        }
     }
 
     @PutMapping(path = Paths.RESTART_MACHINE)
     public ResponseEntity<String> restartMachine(@RequestParam("id") long id){
-        return null;
+        try{
+            Optional<Machine> machineOptional = machineService.findById(id);
+            if(!machineOptional.isPresent())
+                throw new Exception("Couldn't find machine: "+id);
+
+            Machine machine = machineOptional.get();
+            if(machine.getStatus()== StatusEnum.RUNNING)
+                throw new Exception("Machine is STOPPED, but shouldn't");
+
+            int time = 10 + random.nextInt(10);
+
+
+
+            Thread thread = new Thread(new MachineRestartRunnable(machine,time));
+            thread.start();
+
+            return new ResponseEntity<>("Machine ("+id+") should stop",HttpStatus.OK);
+        }catch (Exception e){
+            e.printStackTrace();
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+        }
     }
 
 
