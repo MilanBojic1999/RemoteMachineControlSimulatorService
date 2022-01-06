@@ -33,10 +33,9 @@ public class SpringSecureConfig extends WebSecurityConfigurerAdapter {
         this.userRepository = userRepository;
         if(!userRepository.existsByEmail("root@gmail.com")) {
             User root = new User("Root", "Roots", "root@gmail.com", this.encoder.encode("root"));
-            root.addPermission(PermissionsEnum.CAN_CREATE_USERS);
-            root.addPermission(PermissionsEnum.CAN_DELETE_USERS);
-            root.addPermission(PermissionsEnum.CAN_READ_USERS);
-            root.addPermission(PermissionsEnum.CAN_UPDATE_USERS);
+            for(PermissionsEnum permissionsEnum:PermissionsEnum.values()){
+                root.addPermission(permissionsEnum);
+            }
             User user1 = new User("Milan","Bojic","mbojic12@raf.rs",this.encoder.encode("milan"));
             user1.addPermission(PermissionsEnum.CAN_READ_USERS);
 

@@ -117,7 +117,7 @@ public class MachineController {
                 throw new Exception("Couldn't find machine: "+id);
 
             Machine machine = machineOptional.get();
-            if(machine.getStatus()== StatusEnum.RUNNING)
+            if(machine.getStatus()== StatusEnum.STOPPED)
                 throw new Exception("Machine is STOPPED, but shouldn't");
 
             int time = 10 + random.nextInt(10);
