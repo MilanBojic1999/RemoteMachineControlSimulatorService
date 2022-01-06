@@ -1,8 +1,12 @@
 package raf.web.Domaci3.controlers;
 
 import com.google.gson.Gson;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.bind.annotation.*;
 import raf.web.Domaci3.Paths;
 import raf.web.Domaci3.model.Machine;
@@ -22,6 +26,7 @@ import java.util.Random;
 @RestController
 @CrossOrigin
 @RequestMapping(Paths.MACHINE_PATH)
+@EnableAsync
 public class MachineController {
 
     private MachineService machineService;
@@ -31,9 +36,30 @@ public class MachineController {
 
     private Random random;
 
+    @Autowired
+    public MachineController(MachineService machineService, UserService userService) {
+        this.machineService = machineService;
+        this.userService = userService;
+        this.jwtUtil = new JwtUtil();
+        this.gson = new Gson();
+
+        this.random = new Random();
+    }
+
+    private static final Specification<Machine> isActive = ((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("active"),true));
+
+
     @GetMapping(Paths.SEARCH_MACHINE)
     public ResponseEntity<List<Machine>> searchMachines(){
+        Specification<Machine> goodId = ((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("id"),1));
+        List<Machine> machines = machineService.getRepository().findAll(goodId.and(isActive));
         return null;
+    }
+
+    @GetMapping("/all")
+    public List<Machine> getAllMachines(){
+        Specification<Machine> goodId = ((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("id"),1));
+        return machineService.getRepository().findAll(goodId.and(isActive));
     }
 
     @PutMapping(path = Paths.START_MACHINE)
@@ -49,7 +75,7 @@ public class MachineController {
 
             int time = 10 + random.nextInt(10);
 
-            Thread thread = new Thread(new MachineRunnable(machine,StatusEnum.RUNNING,time));
+            Thread thread = new Thread(new MachineRunnable(machineService.getRepository(),machine,StatusEnum.RUNNING,time));
             thread.start();
 
             return new ResponseEntity<>("Machine ("+id+") should start",HttpStatus.OK);
@@ -72,7 +98,7 @@ public class MachineController {
 
             int time = 10 + random.nextInt(10);
 
-            Thread thread = new Thread(new MachineRunnable(machine,StatusEnum.STOPPED,time));
+            Thread thread = new Thread(new MachineRunnable(machineService.getRepository(),machine,StatusEnum.STOPPED,time));
             thread.start();
 
             return new ResponseEntity<>("Machine ("+id+") should stop",HttpStatus.OK);

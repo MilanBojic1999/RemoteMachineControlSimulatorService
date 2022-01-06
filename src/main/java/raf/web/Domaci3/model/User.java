@@ -8,7 +8,7 @@ import java.util.*;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long user_id;
+    private Long userId;
 
     @Column(nullable = false)
     private String firstname;
@@ -23,13 +23,13 @@ public class User {
     private String password;
 
     @Enumerated(EnumType.STRING)
-    @ElementCollection(targetClass = PermissionsEnum.class, fetch = FetchType.LAZY)
+    @ElementCollection(targetClass = PermissionsEnum.class, fetch = FetchType.EAGER)
     @JoinTable(name = "permissions", joinColumns = @JoinColumn(name = "user_id"))
     private Collection<PermissionsEnum> permissionsEnumList;
 
 
     public Long getUserId() {
-        return user_id;
+        return userId;
     }
 
     public User() {
@@ -45,7 +45,7 @@ public class User {
     }
 
     public void setUserId(Long user_id) {
-        this.user_id = user_id;
+        this.userId = userId;
     }
 
     public String getFirstname() {
@@ -99,12 +99,26 @@ public class User {
     @Override
     public String toString() {
         return "User{" +
-                "userId=" + user_id +
+                "userId=" + userId +
                 ", firstname='" + firstname + '\'' +
                 ", lastname='" + lastname + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 ", permissionsEnumList=" + permissionsEnumList +
                 '}';
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return userId.equals(user.userId) && email.equals(user.email);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(userId, email);
     }
 }

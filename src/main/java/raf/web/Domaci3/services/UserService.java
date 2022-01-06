@@ -32,6 +32,8 @@ public class UserService implements UserDetailsService {
         }
         User myUser = myUserOpt.get();
         //Hibernate.initialize(myUser.getPermissionsList());
+
+        Hibernate.initialize(myUser.getPermissionsList());
         return new org.springframework.security.core.userdetails.User(myUser.getEmail(), myUser.getPassword(), myUser.getPermissionsList());
 
     }

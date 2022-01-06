@@ -7,8 +7,19 @@ import javax.persistence.Id;
 @Entity
 public class ErrorMassage {
     @Id
-    @Column(name = "id", nullable = false)
+    @Column(nullable = false)
     private Long id;
+
+    @Column(nullable = false)
+    private String massage;
+
+    public ErrorMassage(String massage) {
+        this.massage = massage;
+    }
+
+    public ErrorMassage() {
+
+    }
 
     public Long getId() {
         return id;
@@ -16,5 +27,13 @@ public class ErrorMassage {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getMassage() {
+        return massage;
+    }
+
+    public void setMassage(String massage) {
+        this.massage = massage;
     }
 }

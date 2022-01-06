@@ -37,4 +37,8 @@ public class MachineService implements IService<Machine,Long> {
     public void deleteById(Long var1) {
         repository.deleteById(var1);
     }
+
+    public IMachineRepository getRepository() {
+        return repository;
+    }
 }

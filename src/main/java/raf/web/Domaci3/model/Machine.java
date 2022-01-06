@@ -2,6 +2,7 @@ package raf.web.Domaci3.model;
 
 import javax.persistence.*;
 import java.sql.Date;
+import java.util.Objects;
 
 @Entity
 public class Machine {
@@ -15,7 +16,7 @@ public class Machine {
     private StatusEnum status;
 
     @ManyToOne
-    @JoinColumn(name = "created_by_user_id", referencedColumnName = "user_id", nullable = false)
+    @JoinColumn(name = "created_by_user_id", referencedColumnName = "userId", nullable = false)
     private User createdBy;
 
     private boolean active;
@@ -78,5 +79,29 @@ public class Machine {
 
     public void setCreated(Date created) {
         this.created = created;
+    }
+
+    @Override
+    public String toString() {
+        return "Machine{" +
+                "id=" + id +
+                ", status=" + status +
+                ", createdBy=" + createdBy +
+                ", active=" + active +
+                ", created=" + created +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Machine machine = (Machine) o;
+        return id == machine.id && Objects.equals(createdBy, machine.createdBy);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, createdBy);
     }
 }
