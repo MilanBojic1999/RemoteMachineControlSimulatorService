@@ -12,7 +12,6 @@ import java.util.Optional;
 public class MachineService implements IService<Machine,Long> {
 
     private final IMachineRepository repository;
-
     @Autowired
     public MachineService(IMachineRepository repository) {
         this.repository = repository;

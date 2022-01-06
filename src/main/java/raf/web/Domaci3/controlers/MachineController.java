@@ -12,6 +12,7 @@ import raf.web.Domaci3.Paths;
 import raf.web.Domaci3.model.Machine;
 import raf.web.Domaci3.model.StatusEnum;
 import raf.web.Domaci3.model.User;
+import raf.web.Domaci3.services.MachineAsyncService;
 import raf.web.Domaci3.util.JwtUtil;
 import raf.web.Domaci3.security.Tokens;
 import raf.web.Domaci3.services.MachineService;
@@ -31,15 +32,17 @@ public class MachineController {
 
     private MachineService machineService;
     private UserService userService;
+    private MachineAsyncService asyncService;
     private JwtUtil jwtUtil;
     private Gson gson;
 
     private Random random;
 
     @Autowired
-    public MachineController(MachineService machineService, UserService userService) {
+    public MachineController(MachineAsyncService asyncService, MachineService machineService, UserService userService) {
         this.machineService = machineService;
         this.userService = userService;
+        this.asyncService = asyncService;
         this.jwtUtil = new JwtUtil();
         this.gson = new Gson();
 
@@ -75,8 +78,7 @@ public class MachineController {
 
             int time = 10 + random.nextInt(10);
 
-            Thread thread = new Thread(new MachineRunnable(machineService.getRepository(),machine,StatusEnum.RUNNING,time));
-            thread.start();
+            asyncService.startMachine(machine,time);
 
             return new ResponseEntity<>("Machine ("+id+") should start",HttpStatus.OK);
         }catch (Exception e){
@@ -98,8 +100,7 @@ public class MachineController {
 
             int time = 10 + random.nextInt(10);
 
-            Thread thread = new Thread(new MachineRunnable(machineService.getRepository(),machine,StatusEnum.STOPPED,time));
-            thread.start();
+            asyncService.stopMachine(machine,time);
 
             return new ResponseEntity<>("Machine ("+id+") should stop",HttpStatus.OK);
         }catch (Exception e){
@@ -121,10 +122,7 @@ public class MachineController {
 
             int time = 10 + random.nextInt(10);
 
-
-
-            Thread thread = new Thread(new MachineRestartRunnable(machine,time));
-            thread.start();
+            asyncService.restartMachine(machine,time);
 
             return new ResponseEntity<>("Machine ("+id+") should stop",HttpStatus.OK);
         }catch (Exception e){
