@@ -6,23 +6,36 @@ import raf.web.Domaci3.model.Machine;
 import raf.web.Domaci3.model.StatusEnum;
 import raf.web.Domaci3.services.MachineService;
 
+import java.util.Optional;
+
 public class MachineDeleteRunnable implements Runnable{
 
 
-    private Machine machine;
+    private long id;
     private MachineService machineService;
 
-    public MachineDeleteRunnable(Machine machine, MachineService machineService) {
-        this.machine = machine;
+    public MachineDeleteRunnable(long id, MachineService machineService) {
+        this.id = id;
         this.machineService = machineService;
     }
 
     @Override
     public void run() {
-        if(machine.getStatus()== StatusEnum.RUNNING)
-            System.err.println("Machine is RUNNING. can't delete machine");
+        try {
+            Optional<Machine> machineOptional = machineService.findById(id);
 
-        machine.setActive(false);
-        machineService.save(machine);
+            if (!machineOptional.isPresent())
+                throw new Exception("Couldn't find machine");
+
+            Machine machine = machineOptional.get();
+
+            if (machine.getStatus() == StatusEnum.RUNNING)
+                throw  new Exception("Machine is RUNNING. can't delete machine");
+
+            machine.setActive(false);
+            machineService.save(machine);
+        }catch (Exception e){
+            System.err.println(e.getMessage());
+        }
     }
 }
