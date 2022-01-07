@@ -1,4 +1,4 @@
-package raf.web.Domaci3.util;
+package raf.web.Domaci3.scheduling;
 
 import raf.web.Domaci3.model.Machine;
 import raf.web.Domaci3.model.StatusEnum;

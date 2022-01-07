@@ -2,7 +2,6 @@ package raf.web.Domaci3.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.repository.CrudRepository;
 import raf.web.Domaci3.model.Machine;
 import raf.web.Domaci3.model.User;
 

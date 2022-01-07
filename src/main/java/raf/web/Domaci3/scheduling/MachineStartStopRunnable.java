@@ -1,23 +1,24 @@
-package raf.web.Domaci3.util;
+package raf.web.Domaci3.scheduling;
 
 import org.springframework.http.converter.xml.MarshallingHttpMessageConverter;
 import raf.web.Domaci3.model.Machine;
 import raf.web.Domaci3.model.StatusEnum;
 import raf.web.Domaci3.repositories.IMachineRepository;
+import raf.web.Domaci3.services.MachineService;
 
-public class MachineRunnable implements Runnable{
+public class MachineStartStopRunnable implements Runnable{
 
 
     private Machine machine;
     private StatusEnum statusEnum;
     private int sec2Sleep;
-    private IMachineRepository repository;
+    private MachineService machineService;
 
-    public MachineRunnable(IMachineRepository repository,Machine machine, StatusEnum statusEnum, int sec2Sleep) {
+    public MachineStartStopRunnable(MachineService machineService, Machine machine, StatusEnum statusEnum, int sec2Sleep) {
         this.machine = machine;
         this.statusEnum = statusEnum;
         this.sec2Sleep = sec2Sleep;
-        this.repository = repository;
+        this.machineService = machineService;
     }
 
     @Override
@@ -29,6 +30,6 @@ public class MachineRunnable implements Runnable{
             e.printStackTrace();
         }
         machine.setStatus(statusEnum);
-        repository.save(machine);
+        machineService.save(machine);
     }
 }

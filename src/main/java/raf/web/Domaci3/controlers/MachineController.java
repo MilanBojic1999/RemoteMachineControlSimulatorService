@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.bind.annotation.*;
 import raf.web.Domaci3.Paths;
@@ -17,8 +16,6 @@ import raf.web.Domaci3.util.JwtUtil;
 import raf.web.Domaci3.security.Tokens;
 import raf.web.Domaci3.services.MachineService;
 import raf.web.Domaci3.services.UserService;
-import raf.web.Domaci3.util.MachineRestartRunnable;
-import raf.web.Domaci3.util.MachineRunnable;
 
 import java.util.List;
 import java.util.Optional;

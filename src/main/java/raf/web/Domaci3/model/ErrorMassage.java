@@ -1,17 +1,23 @@
 package raf.web.Domaci3.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.Date;
 
 @Entity
+@Table(name = "error_massage")
 public class ErrorMassage {
+
     @Id
-    @Column(nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
     private String massage;
+
+    @Basic
+    @Column(name = "timestamp", insertable = false, updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date created;
 
     public ErrorMassage(String massage) {
         this.massage = massage;
@@ -35,5 +41,13 @@ public class ErrorMassage {
 
     public void setMassage(String massage) {
         this.massage = massage;
+    }
+
+    public Date getCreated() {
+        return created;
+    }
+
+    public void setCreated(Date created) {
+        this.created = created;
     }
 }
