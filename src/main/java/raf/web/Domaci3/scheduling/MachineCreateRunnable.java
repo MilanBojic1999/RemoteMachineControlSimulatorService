@@ -1,7 +1,5 @@
 package raf.web.Domaci3.scheduling;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import raf.web.Domaci3.model.Machine;
 import raf.web.Domaci3.model.User;
 import raf.web.Domaci3.services.MachineService;

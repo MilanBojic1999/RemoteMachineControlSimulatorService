@@ -2,21 +2,31 @@ package raf.web.Domaci3.controlers;
 
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.bind.annotation.*;
 import raf.web.Domaci3.Paths;
 import raf.web.Domaci3.model.Machine;
 import raf.web.Domaci3.model.StatusEnum;
 import raf.web.Domaci3.model.User;
+import raf.web.Domaci3.scheduling.MachineCreateRunnable;
+import raf.web.Domaci3.scheduling.MachineDeleteRunnable;
+import raf.web.Domaci3.scheduling.MachineRestartRunnable;
+import raf.web.Domaci3.scheduling.MachineStartStopRunnable;
 import raf.web.Domaci3.services.MachineAsyncService;
 import raf.web.Domaci3.util.JwtUtil;
 import raf.web.Domaci3.security.Tokens;
 import raf.web.Domaci3.services.MachineService;
 import raf.web.Domaci3.services.UserService;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -30,53 +40,80 @@ public class MachineController {
     private MachineService machineService;
     private UserService userService;
     private MachineAsyncService asyncService;
+
+    private TaskScheduler taskScheduler;
+
     private JwtUtil jwtUtil;
     private Gson gson;
 
     private Random random;
+    DateTimeFormatter formatter;
 
     @Autowired
-    public MachineController(MachineAsyncService asyncService, MachineService machineService, UserService userService) {
+    public MachineController(MachineAsyncService asyncService, MachineService machineService, UserService userService,TaskScheduler taskScheduler) {
         this.machineService = machineService;
         this.userService = userService;
         this.asyncService = asyncService;
+
+        this.taskScheduler = taskScheduler;
+
         this.jwtUtil = new JwtUtil();
         this.gson = new Gson();
-
         this.random = new Random();
+
+        formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX");
     }
 
     private static final Specification<Machine> isActive = ((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("active"),true));
 
 
     @GetMapping(Paths.SEARCH_MACHINE)
-    public ResponseEntity<List<Machine>> searchMachines(){
-        Specification<Machine> goodId = ((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("id"),1));
+    public ResponseEntity<List<Machine>> searchMachines(@RequestHeader(Tokens.HEADER) String jwt){
+        String email = jwtUtil.extractEmail(jwt);
+        User user = userService.getUserByEmail(email);
+
+        Specification<Machine> goodId = ((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("createdBy"),user));
         List<Machine> machines = machineService.getRepository().findAll(goodId.and(isActive));
         return null;
     }
 
     @GetMapping("/all")
-    public List<Machine> getAllMachines(){
-        Specification<Machine> goodId = ((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("id"),1));
+    public List<Machine> getAllMachines(@RequestHeader(Tokens.HEADER) String jwt){
+        String email = jwtUtil.extractEmail(jwt);
+        User user = userService.getUserByEmail(email);
+
+        Specification<Machine> goodId = ((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("createdBy"),user));
         return machineService.getRepository().findAll(goodId.and(isActive));
     }
 
+    public Machine getMachineById(long id){
+        Optional<Machine> machineOptional = machineService.findById(id);
+        return machineOptional.orElse(null);
+
+    }
+
     @PutMapping(path = Paths.START_MACHINE)
-    public ResponseEntity<String> startMachine(@RequestParam("id") long id){
+    public ResponseEntity<String> startMachine(@RequestParam("id") long id,@RequestParam(value = "date",required = false) String date){
         try{
-            Optional<Machine> machineOptional = machineService.findById(id);
-            if(!machineOptional.isPresent())
-                throw new Exception("Couldn't find machine: "+id);
+            if(date == null) {
+                Machine machine = getMachineById(id);
+                if (machine == null)
+                    throw new Exception("Couldn't find machine: " + id);
 
-            Machine machine = machineOptional.get();
-            if(machine.getStatus()== StatusEnum.RUNNING)
-                throw new Exception("Machine is RUNNING, but shouldn't");
+                if (machine.getStatus() == StatusEnum.RUNNING)
+                    throw new Exception("Machine is RUNNING, but shouldn't");
 
-            int time = 10 + random.nextInt(10);
+                int time = 10 + random.nextInt(10);
 
-            asyncService.startMachine(machine,time);
+                asyncService.startMachine(machine, time);
+            }else{
+                System.err.println("To do");
+                LocalDateTime ldt = LocalDateTime.parse(date,formatter);
+                int time = 10 + random.nextInt(10);
 
+                taskScheduler.schedule(new MachineStartStopRunnable(this.machineService,id,StatusEnum.RUNNING,time),ldt.toInstant(ZoneOffset.UTC));
+
+            }
             return new ResponseEntity<>("Machine ("+id+") should start",HttpStatus.OK);
         }catch (Exception e){
             e.printStackTrace();
@@ -85,20 +122,28 @@ public class MachineController {
     }
 
     @PutMapping(path = Paths.STOP_MACHINE)
-    public ResponseEntity<String> stopMachine(@RequestParam("id") long id){
+    public ResponseEntity<String> stopMachine(@RequestParam("id") long id,@RequestParam(value = "date",required = false) String date){
         try{
-            Optional<Machine> machineOptional = machineService.findById(id);
-            if(!machineOptional.isPresent())
-                throw new Exception("Couldn't find machine: "+id);
+            if(date == null) {
+                Machine machine = getMachineById(id);
+                if (machine == null)
+                    throw new Exception("Couldn't find machine: " + id);
 
-            Machine machine = machineOptional.get();
-            if(machine.getStatus()== StatusEnum.STOPPED)
-                throw new Exception("Machine is STOPPED, but shouldn't");
+                if (machine.getStatus() == StatusEnum.STOPPED)
+                    throw new Exception("Machine is STOPPED, but shouldn't");
 
-            int time = 10 + random.nextInt(10);
+                int time = 10 + random.nextInt(10);
 
-            asyncService.stopMachine(machine,time);
+                asyncService.stopMachine(machine, time);
+            }else {
+                System.err.println("To do");
+                LocalDateTime ldt = LocalDateTime.parse(date,formatter);
 
+                int time = 10 + random.nextInt(10);
+
+                taskScheduler.schedule(new MachineStartStopRunnable(this.machineService,id,StatusEnum.STOPPED,time),ldt.toInstant(ZoneOffset.UTC));
+
+            }
             return new ResponseEntity<>("Machine ("+id+") should stop",HttpStatus.OK);
         }catch (Exception e){
             e.printStackTrace();
@@ -107,20 +152,29 @@ public class MachineController {
     }
 
     @PutMapping(path = Paths.RESTART_MACHINE)
-    public ResponseEntity<String> restartMachine(@RequestParam("id") long id){
+    public ResponseEntity<String> restartMachine(@RequestParam("id") long id,@RequestParam(value = "date",required = false) String date){
         try{
-            Optional<Machine> machineOptional = machineService.findById(id);
-            if(!machineOptional.isPresent())
-                throw new Exception("Couldn't find machine: "+id);
+            if(date == null) {
+                Machine machine = getMachineById(id);
+                if (machine == null)
+                    throw new Exception("Couldn't find machine: " + id);
 
-            Machine machine = machineOptional.get();
-            if(machine.getStatus()== StatusEnum.STOPPED)
-                throw new Exception("Machine is STOPPED, but shouldn't");
 
-            int time = 10 + random.nextInt(10);
+                if (machine.getStatus() == StatusEnum.STOPPED)
+                    throw new Exception("Machine is STOPPED, but shouldn't");
 
-            asyncService.restartMachine(machine,time);
+                int time = 10 + random.nextInt(10);
 
+                asyncService.restartMachine(machine, time);
+            }else{
+                System.err.println("To do");
+                LocalDateTime ldt = LocalDateTime.parse(date,formatter);
+
+                int time = 10 + random.nextInt(10);
+
+                taskScheduler.schedule(new MachineRestartRunnable(id,time,this.machineService),ldt.toInstant(ZoneOffset.UTC));
+
+            }
             return new ResponseEntity<>("Machine ("+id+") should stop",HttpStatus.OK);
         }catch (Exception e){
             e.printStackTrace();
@@ -130,14 +184,21 @@ public class MachineController {
 
 
     @PostMapping(path = Paths.CREATE_MACHINE)
-    public ResponseEntity<Boolean> createMachine(@RequestParam("id") long id,@RequestHeader(Tokens.HEADER) String jwt){
+    public ResponseEntity<Boolean> createMachine(@RequestParam(value = "date",required = false) String date,@RequestHeader(Tokens.HEADER) String jwt){
         try{
             String email = jwtUtil.extractEmail(jwt);
-            User user = userService.getUserByEmail(email);
+            if(date == null) {
+                User user = userService.getUserByEmail(email);
 
-            Machine machine = new Machine(user);
-            machineService.save(machine);
+                Machine machine = new Machine(user);
+                machineService.save(machine);
+            }else {
+                System.err.println("To do");
 
+                LocalDateTime ldt = LocalDateTime.parse(date,formatter);
+                taskScheduler.schedule(new MachineCreateRunnable(email,this.machineService,this.userService),ldt.toInstant(ZoneOffset.UTC));
+
+            }
             return new ResponseEntity<>(true,HttpStatus.ACCEPTED);
         }catch (Exception e){
             e.printStackTrace();
@@ -146,19 +207,25 @@ public class MachineController {
     }
 
     @PostMapping(path = Paths.DESTROY_MACHINE)
-    public ResponseEntity<?> destroyMachine(@RequestParam("id") long id){
-        Optional<Machine> machineOptional = machineService.findById(id);
-        if(!machineOptional.isPresent())
-            return new ResponseEntity<String>("Couldn't find machine: "+id,HttpStatus.BAD_REQUEST);
+    public ResponseEntity<?> destroyMachine(@RequestParam("id") long id,@RequestParam(value = "date",required = false) String date){
 
-        Machine machine = machineOptional.get();
+        if(date == null) {
+            Machine machine = getMachineById(id);
+            if (machine == null)
+                return new ResponseEntity<>("Couldn't find machine: " + id, HttpStatus.BAD_REQUEST);
 
-        if(machine.getStatus()==StatusEnum.RUNNING)
-            return new ResponseEntity<String>("Machine is RUNNING. can't delete machine",HttpStatus.BAD_REQUEST);
 
-        machine.setActive(false);
-        machineService.save(machine);
+            if (machine.getStatus() == StatusEnum.RUNNING)
+                return new ResponseEntity<>("Machine is RUNNING. can't delete machine", HttpStatus.BAD_REQUEST);
 
+            machine.setActive(false);
+            machineService.save(machine);
+        }else {
+            System.err.println("To do");
+
+            LocalDateTime ldt = LocalDateTime.parse(date,formatter);
+            taskScheduler.schedule(new MachineDeleteRunnable(id,this.machineService),ldt.toInstant(ZoneOffset.UTC));
+        }
         return ResponseEntity.ok().body("Deleted machine: "+id);
     }
 }

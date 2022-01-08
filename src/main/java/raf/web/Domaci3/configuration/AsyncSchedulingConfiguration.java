@@ -1,18 +1,19 @@
 package raf.web.Domaci3.configuration;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import raf.web.Domaci3.repositories.IMachineRepository;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 import java.util.concurrent.Executor;
-import java.util.concurrent.ThreadPoolExecutor;
 
 @Configuration
 @EnableAsync
-public class AsyncConfiguration {
+@EnableScheduling
+public class AsyncSchedulingConfiguration {
 
 
     @Bean(name="asyncExecutor")
@@ -22,6 +23,14 @@ public class AsyncConfiguration {
         executor.setMaxPoolSize(8);
         executor.setQueueCapacity(100);
         executor.setThreadNamePrefix("AsyncgMachine");
+
+        return executor;
+    }
+
+    @Bean(name = "scheduleExecutor")
+    public TaskScheduler scheduleExecutor(){
+        ThreadPoolTaskScheduler executor =  new ThreadPoolTaskScheduler();
+        executor.setPoolSize(8);
 
         return executor;
     }
