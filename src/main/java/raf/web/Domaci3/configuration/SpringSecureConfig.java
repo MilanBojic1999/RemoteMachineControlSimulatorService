@@ -15,6 +15,7 @@ import raf.web.Domaci3.repositories.IMachineRepository;
 import raf.web.Domaci3.repositories.IUserRepository;
 import raf.web.Domaci3.security.JWTAuthorization;
 import raf.web.Domaci3.security.JwtFilter;
+import raf.web.Domaci3.security.MachineActionAuthorization;
 
 
 @EnableWebSecurity
@@ -22,12 +23,13 @@ public class SpringSecureConfig extends WebSecurityConfigurerAdapter {
 
     private BCryptPasswordEncoder encoder;
     private IUserRepository userRepository;
-    private IMachineRepository machineRepository;
+
     private JwtFilter jwtFilter;
     private JWTAuthorization jwtAuthorization;
+    private MachineActionAuthorization machineActionAuthorization;
 
     @Autowired
-    public SpringSecureConfig(BCryptPasswordEncoder encoder,IUserRepository userRepository,IMachineRepository machineRepository,JwtFilter jwtFilter,JWTAuthorization jwtAuthorization) {
+    public SpringSecureConfig(BCryptPasswordEncoder encoder,IUserRepository userRepository,IMachineRepository machineRepository,JwtFilter jwtFilter,JWTAuthorization jwtAuthorization,MachineActionAuthorization machineActionAuthorization) {
         super();
         this.encoder = encoder;
         this.userRepository = userRepository;
@@ -53,6 +55,7 @@ public class SpringSecureConfig extends WebSecurityConfigurerAdapter {
         }
         this.jwtFilter = jwtFilter;
         this.jwtAuthorization = jwtAuthorization;
+        this.machineActionAuthorization = machineActionAuthorization;
     }
 
     @Override
@@ -66,6 +69,8 @@ public class SpringSecureConfig extends WebSecurityConfigurerAdapter {
 
         http.addFilterBefore(this.jwtFilter, UsernamePasswordAuthenticationFilter.class);
         http.addFilterAfter(this.jwtAuthorization,UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAfter(this.machineActionAuthorization,JWTAuthorization.class);
+
     }
 
 
