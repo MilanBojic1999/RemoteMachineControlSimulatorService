@@ -17,6 +17,7 @@ public class MachineStartStopRunnable implements Runnable{
     private MachineService machineService;
 
     public MachineStartStopRunnable(MachineService machineService, long id, StatusEnum statusEnum, int sec2Sleep) {
+        System.out.println("CREATED RUNNABLE");
         this.id = id;
         this.statusEnum = statusEnum;
         this.sec2Sleep = sec2Sleep;
@@ -26,6 +27,8 @@ public class MachineStartStopRunnable implements Runnable{
     @Override
     public void run() {
         try{
+            System.out.println("STATGGGGG kjdf");
+            System.out.flush();
             Optional<Machine> machineOptional = machineService.findById(id);
 
             if (!machineOptional.isPresent())

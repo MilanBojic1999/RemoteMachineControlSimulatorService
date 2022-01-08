@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.web.bind.annotation.*;
 import raf.web.Domaci3.Paths;
 import raf.web.Domaci3.model.Machine;
@@ -24,6 +25,7 @@ import raf.web.Domaci3.services.MachineService;
 import raf.web.Domaci3.services.UserService;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
@@ -61,7 +63,7 @@ public class MachineController {
         this.gson = new Gson();
         this.random = new Random();
 
-        formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+        formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     }
 
     private static final Specification<Machine> isActive = ((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("active"),true));
@@ -77,7 +79,7 @@ public class MachineController {
         return null;
     }
 
-    @GetMapping("/all")
+    @GetMapping(Paths.SEARCH_MACHINE+"/all")
     public List<Machine> getAllMachines(@RequestHeader(Tokens.HEADER) String jwt){
         String email = jwtUtil.extractEmail(jwt);
         User user = userService.getUserByEmail(email);
@@ -107,12 +109,11 @@ public class MachineController {
 
                 asyncService.startMachine(machine, time);
             }else{
-                System.err.println("To do");
                 LocalDateTime ldt = LocalDateTime.parse(date,formatter);
+
                 int time = 10 + random.nextInt(10);
 
-                taskScheduler.schedule(new MachineStartStopRunnable(this.machineService,id,StatusEnum.RUNNING,time),ldt.toInstant(ZoneOffset.UTC));
-
+                taskScheduler.schedule(new MachineStartStopRunnable(this.machineService,id,StatusEnum.RUNNING,time),ldt.atZone(ZoneId.systemDefault()).toInstant());
             }
             return new ResponseEntity<>("Machine ("+id+") should start",HttpStatus.OK);
         }catch (Exception e){
@@ -136,13 +137,11 @@ public class MachineController {
 
                 asyncService.stopMachine(machine, time);
             }else {
-                System.err.println("To do");
                 LocalDateTime ldt = LocalDateTime.parse(date,formatter);
 
                 int time = 10 + random.nextInt(10);
 
-                taskScheduler.schedule(new MachineStartStopRunnable(this.machineService,id,StatusEnum.STOPPED,time),ldt.toInstant(ZoneOffset.UTC));
-
+                taskScheduler.schedule(new MachineStartStopRunnable(this.machineService,id,StatusEnum.STOPPED,time),ldt.atZone(ZoneId.systemDefault()).toInstant());
             }
             return new ResponseEntity<>("Machine ("+id+") should stop",HttpStatus.OK);
         }catch (Exception e){
@@ -167,13 +166,11 @@ public class MachineController {
 
                 asyncService.restartMachine(machine, time);
             }else{
-                System.err.println("To do");
                 LocalDateTime ldt = LocalDateTime.parse(date,formatter);
 
                 int time = 10 + random.nextInt(10);
 
-                taskScheduler.schedule(new MachineRestartRunnable(id,time,this.machineService),ldt.toInstant(ZoneOffset.UTC));
-
+                taskScheduler.schedule(new MachineRestartRunnable(id,time,this.machineService),ldt.atZone(ZoneId.systemDefault()).toInstant());
             }
             return new ResponseEntity<>("Machine ("+id+") should stop",HttpStatus.OK);
         }catch (Exception e){
@@ -193,10 +190,9 @@ public class MachineController {
                 Machine machine = new Machine(user);
                 machineService.save(machine);
             }else {
-                System.err.println("To do");
 
                 LocalDateTime ldt = LocalDateTime.parse(date,formatter);
-                taskScheduler.schedule(new MachineCreateRunnable(email,this.machineService,this.userService),ldt.toInstant(ZoneOffset.UTC));
+                taskScheduler.schedule(new MachineCreateRunnable(email,this.machineService,this.userService),ldt.atZone(ZoneId.systemDefault()).toInstant());
 
             }
             return new ResponseEntity<>(true,HttpStatus.ACCEPTED);
@@ -221,10 +217,9 @@ public class MachineController {
             machine.setActive(false);
             machineService.save(machine);
         }else {
-            System.err.println("To do");
 
             LocalDateTime ldt = LocalDateTime.parse(date,formatter);
-            taskScheduler.schedule(new MachineDeleteRunnable(id,this.machineService),ldt.toInstant(ZoneOffset.UTC));
+            taskScheduler.schedule(new MachineDeleteRunnable(id,this.machineService),ldt.atZone(ZoneId.systemDefault()).toInstant());
         }
         return ResponseEntity.ok().body("Deleted machine: "+id);
     }

@@ -22,16 +22,16 @@ public class AsyncSchedulingConfiguration {
         executor.setCorePoolSize(4);
         executor.setMaxPoolSize(8);
         executor.setQueueCapacity(100);
-        executor.setThreadNamePrefix("AsyncgMachine");
+        executor.setThreadNamePrefix("AsyncMachine");
 
         return executor;
     }
 
-    @Bean(name = "scheduleExecutor")
+    @Bean
     public TaskScheduler scheduleExecutor(){
         ThreadPoolTaskScheduler executor =  new ThreadPoolTaskScheduler();
         executor.setPoolSize(8);
-
+        System.out.println(executor);
         return executor;
     }
 
