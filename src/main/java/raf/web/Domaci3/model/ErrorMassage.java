@@ -19,8 +19,13 @@ public class ErrorMassage {
     @Temporal(TemporalType.TIMESTAMP)
     private Date created;
 
-    public ErrorMassage(String massage) {
+    @ManyToOne
+    @JoinColumn(name = "machine_id", referencedColumnName = "id", nullable = false)
+    private Machine machine;
+
+    public ErrorMassage(String massage,Machine machine) {
         this.massage = massage;
+        this.machine = machine;
     }
 
     public ErrorMassage() {
@@ -49,5 +54,13 @@ public class ErrorMassage {
 
     public void setCreated(Date created) {
         this.created = created;
+    }
+
+    public Machine getMachine() {
+        return machine;
+    }
+
+    public void setMachine(Machine machine) {
+        this.machine = machine;
     }
 }

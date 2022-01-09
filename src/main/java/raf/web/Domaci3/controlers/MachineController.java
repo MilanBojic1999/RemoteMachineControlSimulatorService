@@ -11,6 +11,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.web.bind.annotation.*;
 import raf.web.Domaci3.Paths;
+import raf.web.Domaci3.model.ErrorMassage;
 import raf.web.Domaci3.model.Machine;
 import raf.web.Domaci3.model.StatusEnum;
 import raf.web.Domaci3.model.User;
@@ -21,6 +22,7 @@ import raf.web.Domaci3.scheduling.MachineStartStopRunnable;
 import raf.web.Domaci3.search.MachineCriteria;
 import raf.web.Domaci3.search.MachineCriteriaList;
 import raf.web.Domaci3.search.MachineSpecification;
+import raf.web.Domaci3.services.ErrorMassageService;
 import raf.web.Domaci3.services.MachineAsyncService;
 import raf.web.Domaci3.util.JwtUtil;
 import raf.web.Domaci3.security.Tokens;
@@ -45,6 +47,7 @@ public class MachineController {
     private MachineService machineService;
     private UserService userService;
     private MachineAsyncService asyncService;
+    private ErrorMassageService errorMassageService;
 
     private TaskScheduler taskScheduler;
 
@@ -55,10 +58,11 @@ public class MachineController {
     DateTimeFormatter formatter;
 
     @Autowired
-    public MachineController(MachineAsyncService asyncService, MachineService machineService, UserService userService,TaskScheduler taskScheduler) {
+    public MachineController(MachineAsyncService asyncService, MachineService machineService, UserService userService,ErrorMassageService errorMassageService,TaskScheduler taskScheduler) {
         this.machineService = machineService;
         this.userService = userService;
         this.asyncService = asyncService;
+        this.errorMassageService = errorMassageService;
 
         this.taskScheduler = taskScheduler;
 
@@ -236,5 +240,20 @@ public class MachineController {
             taskScheduler.schedule(new MachineDeleteRunnable(id,this.machineService),ldt.atZone(ZoneId.systemDefault()).toInstant());
         }
         return ResponseEntity.ok().body("Deleted machine: "+id);
+    }
+
+
+    public List<ErrorMassage> getErrors(@RequestHeader(Tokens.HEADER) String jwt){
+        try {
+            String email = jwtUtil.extractEmail(jwt);
+            User user = userService.getUserByEmail(email);
+
+            return errorMassageService.findByUser(user);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
+
     }
 }
