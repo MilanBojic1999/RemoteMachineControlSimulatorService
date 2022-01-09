@@ -18,6 +18,9 @@ import raf.web.Domaci3.scheduling.MachineCreateRunnable;
 import raf.web.Domaci3.scheduling.MachineDeleteRunnable;
 import raf.web.Domaci3.scheduling.MachineRestartRunnable;
 import raf.web.Domaci3.scheduling.MachineStartStopRunnable;
+import raf.web.Domaci3.search.MachineCriteria;
+import raf.web.Domaci3.search.MachineCriteriaList;
+import raf.web.Domaci3.search.MachineSpecification;
 import raf.web.Domaci3.services.MachineAsyncService;
 import raf.web.Domaci3.util.JwtUtil;
 import raf.web.Domaci3.security.Tokens;
@@ -69,14 +72,25 @@ public class MachineController {
     private static final Specification<Machine> isActive = ((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("active"),true));
 
 
-    @GetMapping(Paths.SEARCH_MACHINE)
-    public ResponseEntity<List<Machine>> searchMachines(@RequestHeader(Tokens.HEADER) String jwt){
-        String email = jwtUtil.extractEmail(jwt);
-        User user = userService.getUserByEmail(email);
+    @PostMapping(Paths.SEARCH_MACHINE)
+    public ResponseEntity<List<Machine>> searchMachines(@RequestHeader(Tokens.HEADER) String jwt, @RequestBody MachineCriteriaList criteriaList){
+        try {
+            String email = jwtUtil.extractEmail(jwt);
+            User user = userService.getUserByEmail(email);
 
-        Specification<Machine> goodId = ((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("createdBy"),user));
-        List<Machine> machines = machineService.getRepository().findAll(goodId.and(isActive));
-        return null;
+            Specification<Machine> goodId = ((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("createdBy"), user));
+
+            Specification<Machine> spec = new MachineSpecification(criteriaList.getList().get(0));
+            for (MachineCriteria mc : criteriaList.getList()) {
+                spec = spec.and(new MachineSpecification(mc));
+            }
+
+            List<Machine> machines = machineService.getRepository().findAll(spec.and(goodId).and(isActive));
+            return new ResponseEntity<>(machines, HttpStatus.OK);
+        }catch (Exception e){
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
     }
 
     @GetMapping(Paths.SEARCH_MACHINE+"/all")
