@@ -7,12 +7,14 @@ import java.util.Date;
 public class MachineDto {
 
     private long id;
+    private String name;
     private StatusEnum status;
     private Date date;
 
 
-    public MachineDto(long id, StatusEnum status, Date date) {
+    public MachineDto(long id,String name, StatusEnum status, Date date) {
         this.id = id;
+        this.name = name;
         this.status = status;
         this.date = date;
     }
@@ -26,6 +28,14 @@ public class MachineDto {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public StatusEnum getStatus() {

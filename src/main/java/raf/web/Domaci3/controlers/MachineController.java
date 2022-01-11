@@ -73,7 +73,7 @@ public class MachineController {
     }
 
     public MachineDto machineToDto(Machine machine){
-        return new MachineDto(machine.getId(),machine.getStatus(),machine.getCreated());
+        return new MachineDto(machine.getId(),machine.getName(),machine.getStatus(),machine.getCreated());
     }
 
     private static final Specification<Machine> isActive = ((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("active"),true));

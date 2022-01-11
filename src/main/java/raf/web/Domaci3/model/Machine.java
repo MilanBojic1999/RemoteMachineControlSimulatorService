@@ -11,6 +11,9 @@ public class Machine {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @Column()
+    private String name;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private StatusEnum status;
@@ -79,6 +82,14 @@ public class Machine {
 
     public void setCreated(Date created) {
         this.created = created;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
