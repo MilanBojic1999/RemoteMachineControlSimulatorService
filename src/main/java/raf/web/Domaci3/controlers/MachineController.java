@@ -2,13 +2,11 @@ package raf.web.Domaci3.controlers;
 
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.web.bind.annotation.*;
 import raf.web.Domaci3.Paths;
 import raf.web.Domaci3.model.ErrorMassage;
@@ -33,9 +31,7 @@ import raf.web.Domaci3.services.UserService;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -110,6 +106,7 @@ public class MachineController {
         User user = userService.getUserByEmail(email);
 
         Specification<Machine> goodId = ((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("createdBy"),user));
+        System.out.println("LELN:"+machineService.getRepository().findAll(goodId.and(isActive)).size());
         return machineService.getRepository().findAll(goodId.and(isActive)).stream().map(this::machineToDto).collect(Collectors.toList());
     }
 
@@ -244,7 +241,7 @@ public class MachineController {
     public ResponseEntity<?> destroyMachine(@RequestBody MachineAction body){
         long id = body.getId();
         String date = body.getDate();
-        if(date == null) {
+        if(date.isEmpty()) {
             Machine machine = getMachineById(id);
             if (machine == null)
                 return new ResponseEntity<>("Couldn't find machine: " + id, HttpStatus.BAD_REQUEST);
