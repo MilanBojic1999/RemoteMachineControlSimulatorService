@@ -16,10 +16,7 @@ import raf.web.Domaci3.response_request.UserDto;
 import raf.web.Domaci3.response_request.UserRequest;
 import raf.web.Domaci3.util.JwtUtil;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -38,6 +35,7 @@ public class UserController {
         this.encoder = encoder;
         this.jwtUtil = jwtUtil;
         this.gson = new Gson();
+        System.out.println(Arrays.toString(PermissionsEnum.values()));
     }
 
     @PostMapping(Paths.LOGIN_PATH)

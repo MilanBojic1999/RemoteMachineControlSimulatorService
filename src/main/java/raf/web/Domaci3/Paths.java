@@ -18,4 +18,6 @@ public final class Paths {
     public static final String RESTART_MACHINE = "/restart";
     public static final String CREATE_MACHINE = "/create";
     public static final String DESTROY_MACHINE = "/destroy";
+
+    public static final String MACHINE_ERRORS = "/errors";
 }

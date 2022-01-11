@@ -15,6 +15,8 @@ import raf.web.Domaci3.model.ErrorMassage;
 import raf.web.Domaci3.model.Machine;
 import raf.web.Domaci3.model.StatusEnum;
 import raf.web.Domaci3.model.User;
+import raf.web.Domaci3.response_request.MachineAction;
+import raf.web.Domaci3.response_request.MachineDto;
 import raf.web.Domaci3.scheduling.MachineCreateRunnable;
 import raf.web.Domaci3.scheduling.MachineDeleteRunnable;
 import raf.web.Domaci3.scheduling.MachineRestartRunnable;
@@ -37,6 +39,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin
@@ -70,14 +73,18 @@ public class MachineController {
         this.gson = new Gson();
         this.random = new Random();
 
-        formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+    }
+
+    public MachineDto machineToDto(Machine machine){
+        return new MachineDto(machine.getId(),machine.getStatus(),machine.getCreated());
     }
 
     private static final Specification<Machine> isActive = ((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("active"),true));
 
 
     @PostMapping(Paths.SEARCH_MACHINE)
-    public ResponseEntity<List<Machine>> searchMachines(@RequestHeader(Tokens.HEADER) String jwt, @RequestBody MachineCriteriaList criteriaList){
+    public ResponseEntity<List<MachineDto>> searchMachines(@RequestHeader(Tokens.HEADER) String jwt, @RequestBody MachineCriteriaList criteriaList){
         try {
             String email = jwtUtil.extractEmail(jwt);
             User user = userService.getUserByEmail(email);
@@ -89,7 +96,7 @@ public class MachineController {
                 spec = spec.and(new MachineSpecification(mc));
             }
 
-            List<Machine> machines = machineService.getRepository().findAll(spec.and(goodId).and(isActive));
+            List<MachineDto> machines = machineService.getRepository().findAll(spec.and(goodId).and(isActive)).stream().map(this::machineToDto).collect(Collectors.toList());
             return new ResponseEntity<>(machines, HttpStatus.OK);
         }catch (Exception e){
             e.printStackTrace();
@@ -98,12 +105,12 @@ public class MachineController {
     }
 
     @GetMapping(Paths.SEARCH_MACHINE+"/all")
-    public List<Machine> getAllMachines(@RequestHeader(Tokens.HEADER) String jwt){
+    public List<MachineDto> getAllMachines(@RequestHeader(Tokens.HEADER) String jwt){
         String email = jwtUtil.extractEmail(jwt);
         User user = userService.getUserByEmail(email);
 
         Specification<Machine> goodId = ((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("createdBy"),user));
-        return machineService.getRepository().findAll(goodId.and(isActive));
+        return machineService.getRepository().findAll(goodId.and(isActive)).stream().map(this::machineToDto).collect(Collectors.toList());
     }
 
     public Machine getMachineById(long id){
@@ -113,9 +120,13 @@ public class MachineController {
     }
 
     @PutMapping(path = Paths.START_MACHINE)
-    public ResponseEntity<String> startMachine(@RequestParam("id") long id,@RequestParam(value = "date",required = false) String date){
+    public ResponseEntity<String> startMachine(@RequestBody MachineAction body){
+
         try{
-            if(date == null) {
+            System.out.println(body);
+            String date = body.getDate();
+            long id = body.getId();
+            if(date.isEmpty()) {
                 Machine machine = getMachineById(id);
                 if (machine == null)
                     throw new Exception("Couldn't find machine: " + id);
@@ -141,9 +152,12 @@ public class MachineController {
     }
 
     @PutMapping(path = Paths.STOP_MACHINE)
-    public ResponseEntity<String> stopMachine(@RequestParam("id") long id,@RequestParam(value = "date",required = false) String date){
+    public ResponseEntity<String> stopMachine(@RequestBody MachineAction body){
+
         try{
-            if(date == null) {
+            long id = body.getId();
+            String date = body.getDate();
+            if(date.isEmpty()) {
                 Machine machine = getMachineById(id);
                 if (machine == null)
                     throw new Exception("Couldn't find machine: " + id);
@@ -169,9 +183,12 @@ public class MachineController {
     }
 
     @PutMapping(path = Paths.RESTART_MACHINE)
-    public ResponseEntity<String> restartMachine(@RequestParam("id") long id,@RequestParam(value = "date",required = false) String date){
+    public ResponseEntity<String> restartMachine(@RequestBody MachineAction body){
+
         try{
-            if(date == null) {
+            long id = body.getId();
+            String date = body.getDate();
+            if(date.isEmpty()) {
                 Machine machine = getMachineById(id);
                 if (machine == null)
                     throw new Exception("Couldn't find machine: " + id);
@@ -199,10 +216,13 @@ public class MachineController {
 
 
     @PostMapping(path = Paths.CREATE_MACHINE)
-    public ResponseEntity<Boolean> createMachine(@RequestParam(value = "date",required = false) String date,@RequestHeader(Tokens.HEADER) String jwt){
+    public ResponseEntity<Boolean> createMachine(@RequestBody MachineAction body,@RequestHeader(Tokens.HEADER) String jwt){
+
         try{
+            long id = body.getId();
+            String date = body.getDate();
             String email = jwtUtil.extractEmail(jwt);
-            if(date == null) {
+            if(date.isEmpty()) {
                 User user = userService.getUserByEmail(email);
 
                 Machine machine = new Machine(user);
@@ -221,8 +241,9 @@ public class MachineController {
     }
 
     @PostMapping(path = Paths.DESTROY_MACHINE)
-    public ResponseEntity<?> destroyMachine(@RequestParam("id") long id,@RequestParam(value = "date",required = false) String date){
-
+    public ResponseEntity<?> destroyMachine(@RequestBody MachineAction body){
+        long id = body.getId();
+        String date = body.getDate();
         if(date == null) {
             Machine machine = getMachineById(id);
             if (machine == null)
@@ -242,7 +263,7 @@ public class MachineController {
         return ResponseEntity.ok().body("Deleted machine: "+id);
     }
 
-
+    @GetMapping(Paths.MACHINE_ERRORS)
     public List<ErrorMassage> getErrors(@RequestHeader(Tokens.HEADER) String jwt){
         try {
             String email = jwtUtil.extractEmail(jwt);
