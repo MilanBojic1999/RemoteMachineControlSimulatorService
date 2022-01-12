@@ -14,13 +14,15 @@ public class MachineCreateRunnable implements Runnable{
     private UserService userService;
     private String name;
     private ErrorMassageService errorMassageService;
+    private User user;
 
-    public MachineCreateRunnable(String email,String name,MachineService machineService,UserService userService, ErrorMassageService errorMassageService) {
+    public MachineCreateRunnable(String email,String name,User user,MachineService machineService,UserService userService, ErrorMassageService errorMassageService) {
         this.email = email;
         this.machineService = machineService;
         this.userService = userService;
         this.name = name;
         this.errorMassageService = errorMassageService;
+        this.user = user;
     }
 
     @Override
@@ -34,7 +36,7 @@ public class MachineCreateRunnable implements Runnable{
             machineService.save(machine);
 
         }catch (Exception e){
-            ErrorMassage em = new ErrorMassage(e.getMessage(),machine);
+            ErrorMassage em = new ErrorMassage(e.getMessage(),machine,user);
             errorMassageService.save(em);
         }
     }

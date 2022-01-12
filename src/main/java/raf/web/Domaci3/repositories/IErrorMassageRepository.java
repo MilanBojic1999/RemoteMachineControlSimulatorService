@@ -16,6 +16,6 @@ public interface IErrorMassageRepository extends JpaRepository<ErrorMassage,Long
     @Override
     List<ErrorMassage> findAll();
 
-    @Query("select err from ErrorMassage err where err.machine.createdBy.userId = :userId")
+    @Query("select err from ErrorMassage err where err.user.userId = :userId")
     List<ErrorMassage> findByUser(long userId);
 }

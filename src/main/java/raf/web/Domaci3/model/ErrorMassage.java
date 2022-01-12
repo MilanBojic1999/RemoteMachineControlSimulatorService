@@ -1,5 +1,7 @@
 package raf.web.Domaci3.model;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -14,8 +16,8 @@ public class ErrorMassage {
     @Column(nullable = false)
     private String massage;
 
-    @Basic
-    @Column(name = "timestamp", insertable = false, updatable = false)
+    @CreationTimestamp
+    @Column(name = "timestamp", updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date created;
 
@@ -23,9 +25,14 @@ public class ErrorMassage {
     @JoinColumn(name = "machine_id", referencedColumnName = "id")
     private Machine machine;
 
-    public ErrorMassage(String massage,Machine machine) {
+    @ManyToOne
+    @JoinColumn(name = "user",referencedColumnName = "userId")
+    private User user;
+
+    public ErrorMassage(String massage,Machine machine,User user) {
         this.massage = massage;
         this.machine = machine;
+        this.user = user;
     }
 
     public ErrorMassage() {

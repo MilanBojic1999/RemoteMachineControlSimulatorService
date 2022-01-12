@@ -21,7 +21,6 @@ import raf.web.Domaci3.security.MachineActionAuthorization;
 @EnableWebSecurity
 public class SpringSecureConfig extends WebSecurityConfigurerAdapter {
 
-    private BCryptPasswordEncoder encoder;
     private IUserRepository userRepository;
 
     private JwtFilter jwtFilter;
@@ -29,32 +28,10 @@ public class SpringSecureConfig extends WebSecurityConfigurerAdapter {
     private MachineActionAuthorization machineActionAuthorization;
 
     @Autowired
-    public SpringSecureConfig(BCryptPasswordEncoder encoder,IUserRepository userRepository,IMachineRepository machineRepository,JwtFilter jwtFilter,JWTAuthorization jwtAuthorization,MachineActionAuthorization machineActionAuthorization) {
+    public SpringSecureConfig(IUserRepository userRepository,IMachineRepository machineRepository,JwtFilter jwtFilter,JWTAuthorization jwtAuthorization,MachineActionAuthorization machineActionAuthorization) {
         super();
-        this.encoder = encoder;
         this.userRepository = userRepository;
-        if(!userRepository.existsByEmail("root@gmail.com")) {
-            User root = new User("Root", "Roots", "root@gmail.com", this.encoder.encode("root"));
-            for(PermissionsEnum permissionsEnum:PermissionsEnum.values()){
-                root.addPermission(permissionsEnum);
-            }
-            User user1 = new User("Milan","Bojic","mbojic12@raf.rs",this.encoder.encode("milan"));
-            user1.addPermission(PermissionsEnum.CAN_READ_USERS);
 
-
-
-            Machine machine = new Machine(root,"root1");
-            Machine machine2 = new Machine(user1,"user12");
-            Machine machine3 = new Machine(root,"script");
-            machine3.setActive(false);
-
-            userRepository.save(root);
-            userRepository.save(user1);
-
-            machineRepository.save(machine);
-            machineRepository.save(machine2);
-            machineRepository.save(machine3);
-        }
         this.jwtFilter = jwtFilter;
         this.jwtAuthorization = jwtAuthorization;
         this.machineActionAuthorization = machineActionAuthorization;

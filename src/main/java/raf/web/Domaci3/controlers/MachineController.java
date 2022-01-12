@@ -13,6 +13,7 @@ import raf.web.Domaci3.model.ErrorMassage;
 import raf.web.Domaci3.model.Machine;
 import raf.web.Domaci3.model.StatusEnum;
 import raf.web.Domaci3.model.User;
+import raf.web.Domaci3.response_request.ErrorDto;
 import raf.web.Domaci3.response_request.MachineAction;
 import raf.web.Domaci3.response_request.MachineCreate;
 import raf.web.Domaci3.response_request.MachineDto;
@@ -77,6 +78,13 @@ public class MachineController {
         return new MachineDto(machine.getId(),machine.getName(),machine.getStatus(),machine.getCreated());
     }
 
+    public ErrorDto errorMassageToDto(ErrorMassage errorMassage){
+        long id = 0;
+        if(errorMassage.getMachine() != null)
+            id = errorMassage.getMachine().getId();
+        return new ErrorDto(errorMassage.getId(),errorMassage.getMassage(),id,errorMassage.getCreated());
+    }
+
     private static final Specification<Machine> isActive = ((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("active"),true));
 
 
@@ -118,12 +126,14 @@ public class MachineController {
     }
 
     @PutMapping(path = Paths.START_MACHINE)
-    public ResponseEntity<String> startMachine(@RequestBody MachineAction body){
+    public ResponseEntity<String> startMachine(@RequestBody MachineAction body,@RequestHeader(Tokens.HEADER) String jwt){
 
         try{
             System.out.println(body);
             String date = body.getDate();
             long id = body.getId();
+            String email = jwtUtil.extractEmail(jwt);
+            User user = userService.getUserByEmail(email);
             if(date.isEmpty()) {
                 Machine machine = getMachineById(id);
                 if (machine == null)
@@ -140,7 +150,7 @@ public class MachineController {
 
                 int time = 10 + random.nextInt(10);
 
-                taskScheduler.schedule(new MachineStartStopRunnable(this.machineService,id,StatusEnum.RUNNING,time,errorMassageService),ldt.atZone(ZoneId.systemDefault()).toInstant());
+                taskScheduler.schedule(new MachineStartStopRunnable(this.machineService,id,StatusEnum.RUNNING,time,user,errorMassageService),ldt.atZone(ZoneId.systemDefault()).toInstant());
             }
             return new ResponseEntity<>("Machine ("+id+") should start",HttpStatus.OK);
         }catch (Exception e){
@@ -150,11 +160,13 @@ public class MachineController {
     }
 
     @PutMapping(path = Paths.STOP_MACHINE)
-    public ResponseEntity<String> stopMachine(@RequestBody MachineAction body){
+    public ResponseEntity<String> stopMachine(@RequestBody MachineAction body,@RequestHeader(Tokens.HEADER) String jwt){
 
         try{
             long id = body.getId();
             String date = body.getDate();
+            String email = jwtUtil.extractEmail(jwt);
+            User user = userService.getUserByEmail(email);
             if(date.isEmpty()) {
                 Machine machine = getMachineById(id);
                 if (machine == null)
@@ -171,7 +183,7 @@ public class MachineController {
 
                 int time = 10 + random.nextInt(10);
 
-                taskScheduler.schedule(new MachineStartStopRunnable(this.machineService,id,StatusEnum.STOPPED,time,errorMassageService),ldt.atZone(ZoneId.systemDefault()).toInstant());
+                taskScheduler.schedule(new MachineStartStopRunnable(this.machineService,id,StatusEnum.STOPPED,time,user,errorMassageService),ldt.atZone(ZoneId.systemDefault()).toInstant());
             }
             return new ResponseEntity<>("Machine ("+id+") should stop",HttpStatus.OK);
         }catch (Exception e){
@@ -181,11 +193,13 @@ public class MachineController {
     }
 
     @PutMapping(path = Paths.RESTART_MACHINE)
-    public ResponseEntity<String> restartMachine(@RequestBody MachineAction body){
+    public ResponseEntity<String> restartMachine(@RequestBody MachineAction body,@RequestHeader(Tokens.HEADER) String jwt){
 
         try{
             long id = body.getId();
             String date = body.getDate();
+            String email = jwtUtil.extractEmail(jwt);
+            User user = userService.getUserByEmail(email);
             if(date.isEmpty()) {
                 Machine machine = getMachineById(id);
                 if (machine == null)
@@ -203,7 +217,7 @@ public class MachineController {
 
                 int time = 10 + random.nextInt(10);
 
-                taskScheduler.schedule(new MachineRestartRunnable(id,time,this.machineService,errorMassageService),ldt.atZone(ZoneId.systemDefault()).toInstant());
+                taskScheduler.schedule(new MachineRestartRunnable(id,time,user,this.machineService,errorMassageService),ldt.atZone(ZoneId.systemDefault()).toInstant());
             }
             return new ResponseEntity<>("Machine ("+id+") should stop",HttpStatus.OK);
         }catch (Exception e){
@@ -220,15 +234,16 @@ public class MachineController {
             String name = body.getName().toUpperCase();
             String date = body.getDate();
             String email = jwtUtil.extractEmail(jwt);
+            User user = userService.getUserByEmail(email);
             if(date.isEmpty()) {
-                User user = userService.getUserByEmail(email);
+
 
                 Machine machine = new Machine(user,name);
                 machineService.save(machine);
             }else {
 
                 LocalDateTime ldt = LocalDateTime.parse(date,formatter);
-                taskScheduler.schedule(new MachineCreateRunnable(email, body.getName(),this.machineService,this.userService,errorMassageService),ldt.atZone(ZoneId.systemDefault()).toInstant());
+                taskScheduler.schedule(new MachineCreateRunnable(email, body.getName(),user,this.machineService,this.userService,errorMassageService),ldt.atZone(ZoneId.systemDefault()).toInstant());
 
             }
             return new ResponseEntity<>(true,HttpStatus.ACCEPTED);
@@ -239,9 +254,11 @@ public class MachineController {
     }
 
     @PostMapping(path = Paths.DESTROY_MACHINE)
-    public ResponseEntity<?> destroyMachine(@RequestBody MachineAction body){
+    public ResponseEntity<?> destroyMachine(@RequestBody MachineAction body,@RequestHeader(Tokens.HEADER) String jwt){
         long id = body.getId();
         String date = body.getDate();
+        String email = jwtUtil.extractEmail(jwt);
+        User user = userService.getUserByEmail(email);
         if(date.isEmpty()) {
             Machine machine = getMachineById(id);
             if (machine == null)
@@ -256,18 +273,18 @@ public class MachineController {
         }else {
 
             LocalDateTime ldt = LocalDateTime.parse(date,formatter);
-            taskScheduler.schedule(new MachineDeleteRunnable(id,this.machineService,errorMassageService),ldt.atZone(ZoneId.systemDefault()).toInstant());
+            taskScheduler.schedule(new MachineDeleteRunnable(id,user,this.machineService,errorMassageService),ldt.atZone(ZoneId.systemDefault()).toInstant());
         }
         return ResponseEntity.ok().body("Deleted machine: "+id);
     }
 
     @GetMapping(Paths.MACHINE_ERRORS)
-    public List<ErrorMassage> getErrors(@RequestHeader(Tokens.HEADER) String jwt){
+    public List<ErrorDto> getErrors(@RequestHeader(Tokens.HEADER) String jwt){
         try {
             String email = jwtUtil.extractEmail(jwt);
             User user = userService.getUserByEmail(email);
 
-            return errorMassageService.findByUser(user);
+            return errorMassageService.findByUser(user).stream().map(this::errorMassageToDto).collect(Collectors.toList());
 
         }catch (Exception e){
             e.printStackTrace();

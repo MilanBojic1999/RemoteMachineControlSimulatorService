@@ -50,7 +50,8 @@ public class MachineActionAuthorization extends OncePerRequestFilter {
 
         String uri = request.getRequestURI();
         System.out.println(uri);
-        if(uri.startsWith(Paths.MACHINE_PATH) && !(uri.replace(Paths.MACHINE_PATH,"").startsWith(Paths.CREATE_MACHINE) || uri.replace(Paths.MACHINE_PATH,"").startsWith(Paths.SEARCH_MACHINE))) {
+        if(uri.startsWith(Paths.MACHINE_PATH) && !(uri.replace(Paths.MACHINE_PATH,"").startsWith(Paths.CREATE_MACHINE) || uri.replace(Paths.MACHINE_PATH,"").startsWith(Paths.SEARCH_MACHINE) ||
+                uri.replace(Paths.MACHINE_PATH,"").startsWith(Paths.MACHINE_ERRORS) )) {
 
             long id = Long.parseLong(request.getHeader("id"));
 

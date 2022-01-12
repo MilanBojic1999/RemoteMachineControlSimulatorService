@@ -26,17 +26,18 @@ public class Machine {
 
     private Date created;
 
-    public Machine(StatusEnum status, User createdBy, boolean active, Date created) {
+    public Machine(StatusEnum status, User createdBy, boolean active, Date created,String name) {
         this.status = status;
         this.createdBy = createdBy;
         this.active = active;
         this.created = created;
+        this.name = name;
     }
 
     public Machine(User createdBy,String name){
         this.status = StatusEnum.STOPPED;
         this.active = true;
-        this.name = name;
+        this.name = name.toUpperCase();
         this.createdBy = createdBy;
         this.created = new Date(System.currentTimeMillis());
     }
@@ -90,7 +91,7 @@ public class Machine {
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.name = name.toUpperCase();
     }
 
     @Override
