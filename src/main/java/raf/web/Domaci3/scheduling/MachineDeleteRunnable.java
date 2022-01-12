@@ -2,8 +2,10 @@ package raf.web.Domaci3.scheduling;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import raf.web.Domaci3.model.ErrorMassage;
 import raf.web.Domaci3.model.Machine;
 import raf.web.Domaci3.model.StatusEnum;
+import raf.web.Domaci3.services.ErrorMassageService;
 import raf.web.Domaci3.services.MachineService;
 
 import java.util.Optional;
@@ -13,21 +15,24 @@ public class MachineDeleteRunnable implements Runnable{
 
     private long id;
     private MachineService machineService;
+    private ErrorMassageService errorMassageService;
 
-    public MachineDeleteRunnable(long id, MachineService machineService) {
+    public MachineDeleteRunnable(long id, MachineService machineService, ErrorMassageService errorMassageService) {
         this.id = id;
         this.machineService = machineService;
+        this.errorMassageService = errorMassageService;
     }
 
     @Override
     public void run() {
+        Machine machine = null;
         try {
             Optional<Machine> machineOptional = machineService.findById(id);
 
             if (!machineOptional.isPresent())
                 throw new Exception("Couldn't find machine");
 
-            Machine machine = machineOptional.get();
+            machine = machineOptional.get();
 
             if (machine.getStatus() == StatusEnum.RUNNING)
                 throw  new Exception("Machine is RUNNING. can't delete machine");
@@ -35,7 +40,8 @@ public class MachineDeleteRunnable implements Runnable{
             machine.setActive(false);
             machineService.save(machine);
         }catch (Exception e){
-            System.err.println(e.getMessage());
+            ErrorMassage em = new ErrorMassage(e.getMessage(),machine);
+            errorMassageService.save(em);
         }
     }
 }

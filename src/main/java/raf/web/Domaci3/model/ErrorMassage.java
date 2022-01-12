@@ -20,7 +20,7 @@ public class ErrorMassage {
     private Date created;
 
     @ManyToOne
-    @JoinColumn(name = "machine_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "machine_id", referencedColumnName = "id")
     private Machine machine;
 
     public ErrorMassage(String massage,Machine machine) {

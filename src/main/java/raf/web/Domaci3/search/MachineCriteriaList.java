@@ -10,6 +10,9 @@ public class MachineCriteriaList {
         this.list = list;
     }
 
+    public MachineCriteriaList() {
+    }
+
     public List<MachineCriteria> getList() {
         return list;
     }

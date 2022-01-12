@@ -3,6 +3,7 @@ package raf.web.Domaci3.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
 import java.util.*;
 
 @Entity
@@ -19,6 +20,7 @@ public class User {
     private String lastname;
 
     @Column(unique = true,nullable = false)
+    @Email
     private String email;
 
     @Column(nullable = false)

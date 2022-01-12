@@ -140,7 +140,7 @@ public class MachineController {
 
                 int time = 10 + random.nextInt(10);
 
-                taskScheduler.schedule(new MachineStartStopRunnable(this.machineService,id,StatusEnum.RUNNING,time),ldt.atZone(ZoneId.systemDefault()).toInstant());
+                taskScheduler.schedule(new MachineStartStopRunnable(this.machineService,id,StatusEnum.RUNNING,time,errorMassageService),ldt.atZone(ZoneId.systemDefault()).toInstant());
             }
             return new ResponseEntity<>("Machine ("+id+") should start",HttpStatus.OK);
         }catch (Exception e){
@@ -171,7 +171,7 @@ public class MachineController {
 
                 int time = 10 + random.nextInt(10);
 
-                taskScheduler.schedule(new MachineStartStopRunnable(this.machineService,id,StatusEnum.STOPPED,time),ldt.atZone(ZoneId.systemDefault()).toInstant());
+                taskScheduler.schedule(new MachineStartStopRunnable(this.machineService,id,StatusEnum.STOPPED,time,errorMassageService),ldt.atZone(ZoneId.systemDefault()).toInstant());
             }
             return new ResponseEntity<>("Machine ("+id+") should stop",HttpStatus.OK);
         }catch (Exception e){
@@ -203,7 +203,7 @@ public class MachineController {
 
                 int time = 10 + random.nextInt(10);
 
-                taskScheduler.schedule(new MachineRestartRunnable(id,time,this.machineService),ldt.atZone(ZoneId.systemDefault()).toInstant());
+                taskScheduler.schedule(new MachineRestartRunnable(id,time,this.machineService,errorMassageService),ldt.atZone(ZoneId.systemDefault()).toInstant());
             }
             return new ResponseEntity<>("Machine ("+id+") should stop",HttpStatus.OK);
         }catch (Exception e){
@@ -217,7 +217,7 @@ public class MachineController {
     public ResponseEntity<Boolean> createMachine(@RequestBody MachineCreate body, @RequestHeader(Tokens.HEADER) String jwt){
 
         try{
-            String name = body.getName();
+            String name = body.getName().toUpperCase();
             String date = body.getDate();
             String email = jwtUtil.extractEmail(jwt);
             if(date.isEmpty()) {
@@ -228,7 +228,7 @@ public class MachineController {
             }else {
 
                 LocalDateTime ldt = LocalDateTime.parse(date,formatter);
-                taskScheduler.schedule(new MachineCreateRunnable(email, body.getName(),this.machineService,this.userService),ldt.atZone(ZoneId.systemDefault()).toInstant());
+                taskScheduler.schedule(new MachineCreateRunnable(email, body.getName(),this.machineService,this.userService,errorMassageService),ldt.atZone(ZoneId.systemDefault()).toInstant());
 
             }
             return new ResponseEntity<>(true,HttpStatus.ACCEPTED);
@@ -256,7 +256,7 @@ public class MachineController {
         }else {
 
             LocalDateTime ldt = LocalDateTime.parse(date,formatter);
-            taskScheduler.schedule(new MachineDeleteRunnable(id,this.machineService),ldt.atZone(ZoneId.systemDefault()).toInstant());
+            taskScheduler.schedule(new MachineDeleteRunnable(id,this.machineService,errorMassageService),ldt.atZone(ZoneId.systemDefault()).toInstant());
         }
         return ResponseEntity.ok().body("Deleted machine: "+id);
     }

@@ -1,9 +1,11 @@
 package raf.web.Domaci3.scheduling;
 
 import org.springframework.http.converter.xml.MarshallingHttpMessageConverter;
+import raf.web.Domaci3.model.ErrorMassage;
 import raf.web.Domaci3.model.Machine;
 import raf.web.Domaci3.model.StatusEnum;
 import raf.web.Domaci3.repositories.IMachineRepository;
+import raf.web.Domaci3.services.ErrorMassageService;
 import raf.web.Domaci3.services.MachineService;
 
 import java.util.Optional;
@@ -15,17 +17,20 @@ public class MachineStartStopRunnable implements Runnable{
     private StatusEnum statusEnum;
     private int sec2Sleep;
     private MachineService machineService;
+    private ErrorMassageService errorMassageService;
 
-    public MachineStartStopRunnable(MachineService machineService, long id, StatusEnum statusEnum, int sec2Sleep) {
+    public MachineStartStopRunnable(MachineService machineService, long id, StatusEnum statusEnum, int sec2Sleep, ErrorMassageService errorMassageService) {
         System.out.println("CREATED RUNNABLE");
         this.id = id;
         this.statusEnum = statusEnum;
         this.sec2Sleep = sec2Sleep;
         this.machineService = machineService;
+        this.errorMassageService = errorMassageService;
     }
 
     @Override
     public void run() {
+        Machine machine = null;
         try{
             System.out.println("STATGGGGG kjdf");
             System.out.flush();
@@ -34,7 +39,7 @@ public class MachineStartStopRunnable implements Runnable{
             if (!machineOptional.isPresent())
                 throw new Exception("Couldn't find machine");
 
-            Machine machine = machineOptional.get();
+            machine = machineOptional.get();
 
             if(machine.getStatus() == this.statusEnum){
                 throw new Exception("This machine ("+id+") is "+this.statusEnum.toString()+", so can't do operation");
@@ -48,7 +53,8 @@ public class MachineStartStopRunnable implements Runnable{
             machine.setStatus(statusEnum);
             machineService.save(machine);
         } catch (Exception e) {
-            System.err.println(e.getMessage());
+            ErrorMassage em = new ErrorMassage(e.getMessage(),machine);
+            errorMassageService.save(em);
         }
 
     }
