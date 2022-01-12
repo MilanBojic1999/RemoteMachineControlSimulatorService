@@ -10,11 +10,13 @@ public class MachineCreateRunnable implements Runnable{
     private String email;
     private MachineService machineService;
     private UserService userService;
+    private String name;
 
-    public MachineCreateRunnable(String email,MachineService machineService,UserService userService) {
+    public MachineCreateRunnable(String email,String name,MachineService machineService,UserService userService) {
         this.email = email;
         this.machineService = machineService;
         this.userService = userService;
+        this.name = name;
     }
 
     @Override
@@ -23,7 +25,7 @@ public class MachineCreateRunnable implements Runnable{
 
             User user = userService.getUserByEmail(email);
 
-            Machine machine = new Machine(user);
+            Machine machine = new Machine(user,name);
             machineService.save(machine);
 
         }catch (Exception e){

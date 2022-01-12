@@ -14,6 +14,7 @@ import raf.web.Domaci3.model.Machine;
 import raf.web.Domaci3.model.StatusEnum;
 import raf.web.Domaci3.model.User;
 import raf.web.Domaci3.response_request.MachineAction;
+import raf.web.Domaci3.response_request.MachineCreate;
 import raf.web.Domaci3.response_request.MachineDto;
 import raf.web.Domaci3.scheduling.MachineCreateRunnable;
 import raf.web.Domaci3.scheduling.MachineDeleteRunnable;
@@ -213,21 +214,21 @@ public class MachineController {
 
 
     @PostMapping(path = Paths.CREATE_MACHINE)
-    public ResponseEntity<Boolean> createMachine(@RequestBody MachineAction body,@RequestHeader(Tokens.HEADER) String jwt){
+    public ResponseEntity<Boolean> createMachine(@RequestBody MachineCreate body, @RequestHeader(Tokens.HEADER) String jwt){
 
         try{
-            long id = body.getId();
+            String name = body.getName();
             String date = body.getDate();
             String email = jwtUtil.extractEmail(jwt);
             if(date.isEmpty()) {
                 User user = userService.getUserByEmail(email);
 
-                Machine machine = new Machine(user);
+                Machine machine = new Machine(user,name);
                 machineService.save(machine);
             }else {
 
                 LocalDateTime ldt = LocalDateTime.parse(date,formatter);
-                taskScheduler.schedule(new MachineCreateRunnable(email,this.machineService,this.userService),ldt.atZone(ZoneId.systemDefault()).toInstant());
+                taskScheduler.schedule(new MachineCreateRunnable(email, body.getName(),this.machineService,this.userService),ldt.atZone(ZoneId.systemDefault()).toInstant());
 
             }
             return new ResponseEntity<>(true,HttpStatus.ACCEPTED);

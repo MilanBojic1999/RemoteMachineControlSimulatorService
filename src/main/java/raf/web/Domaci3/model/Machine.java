@@ -33,9 +33,10 @@ public class Machine {
         this.created = created;
     }
 
-    public Machine(User createdBy){
+    public Machine(User createdBy,String name){
         this.status = StatusEnum.STOPPED;
         this.active = true;
+        this.name = name;
         this.createdBy = createdBy;
         this.created = new Date(System.currentTimeMillis());
     }

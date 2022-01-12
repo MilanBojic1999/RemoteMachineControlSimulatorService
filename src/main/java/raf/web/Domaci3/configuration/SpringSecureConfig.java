@@ -41,9 +41,9 @@ public class SpringSecureConfig extends WebSecurityConfigurerAdapter {
             User user1 = new User("Milan","Bojic","mbojic12@raf.rs",this.encoder.encode("milan"));
             user1.addPermission(PermissionsEnum.CAN_READ_USERS);
 
-            Machine machine = new Machine(root);
-            Machine machine2 = new Machine(user1);
-            Machine machine3 = new Machine(root);
+            Machine machine = new Machine(root,"root1");
+            Machine machine2 = new Machine(user1,"user12");
+            Machine machine3 = new Machine(root,"script");
             machine3.setActive(false);
 
             userRepository.save(root);
