@@ -26,8 +26,12 @@ public class MachineAsyncService {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        machine.setStatus(StatusEnum.RUNNING);
-        repository.save(machine);
+        try {
+            machine.setStatus(StatusEnum.RUNNING);
+            repository.save(machine);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     @Async("asyncExecutor")
@@ -37,8 +41,12 @@ public class MachineAsyncService {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        machine.setStatus(StatusEnum.STOPPED);
-        repository.save(machine);
+        try {
+            machine.setStatus(StatusEnum.STOPPED);
+            repository.save(machine);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     @Async("asyncExecutor")
@@ -51,16 +59,26 @@ public class MachineAsyncService {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        machine.setStatus(StatusEnum.STOPPED);
-        repository.saveAndFlush(machine);
+        try {
+            machine.setStatus(StatusEnum.STOPPED);
+            repository.saveAndFlush(machine);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
         try {
             Thread.sleep((long) (time*1000L));
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        machine.setStatus(StatusEnum.RUNNING);
-        repository.save(machine);
+
+        try {
+            machine.setStatus(StatusEnum.RUNNING);
+            repository.save(machine);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
 
     }
 

@@ -80,7 +80,7 @@ public class MachineController {
         long id = 0;
         if(errorMassage.getMachine() != null)
             id = errorMassage.getMachine().getId();
-        return new ErrorDto(errorMassage.getId(),errorMassage.getMassage(),id,errorMassage.getCreated());
+        return new ErrorDto(errorMassage.getId(),errorMassage.getMassage(),errorMassage.getAction(),id,errorMassage.getCreated());
     }
 
     private static final Specification<Machine> isActive = ((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("active"),true));

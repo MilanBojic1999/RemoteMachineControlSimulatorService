@@ -22,9 +22,14 @@ public class Machine {
     @JoinColumn(name = "created_by_user_id", referencedColumnName = "userId", nullable = false)
     private User createdBy;
 
+    @Column
     private boolean active;
 
+    @Column
     private Date created;
+
+    @Version
+    private Integer version = 0;
 
     public Machine(StatusEnum status, User createdBy, boolean active, Date created,String name) {
         this.status = status;
