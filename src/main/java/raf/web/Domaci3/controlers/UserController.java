@@ -134,7 +134,8 @@ public class UserController {
         user.setEmail(userRequest.getEmail());
         user.setFirstname(userRequest.getFirstname());
         user.setLastname(userRequest.getLastname());
-        user.setPassword(this.encoder.encode(userRequest.getPassword()));
+        if(!userRequest.getPassword().trim().isEmpty())
+            user.setPassword(this.encoder.encode(userRequest.getPassword()));
         user.setPermissionsList((List<PermissionsEnum>) userRequest.getPermissions());
 
         User tmp = userRepository.save(user);

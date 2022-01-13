@@ -36,7 +36,7 @@ public class MachineCreateRunnable implements Runnable{
             machineService.save(machine);
 
         }catch (Exception e){
-            ErrorMassage em = new ErrorMassage(e.getMessage(),machine,user);
+            ErrorMassage em = new ErrorMassage(e.getMessage(),"Create",machine,user);
             errorMassageService.save(em);
         }
     }

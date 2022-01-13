@@ -20,11 +20,17 @@ public class MachineStartStopRunnable implements Runnable{
     private MachineService machineService;
     private ErrorMassageService errorMassageService;
     private User user;
+    private String action;
 
     public MachineStartStopRunnable(MachineService machineService, long id, StatusEnum statusEnum, int sec2Sleep,User user, ErrorMassageService errorMassageService) {
         System.out.println("CREATED RUNNABLE");
         this.id = id;
         this.statusEnum = statusEnum;
+        if(this.statusEnum == StatusEnum.RUNNING){
+            this.action = "Start";
+        }else{
+            this.action = "Stop";
+        }
         this.sec2Sleep = sec2Sleep;
         this.machineService = machineService;
         this.errorMassageService = errorMassageService;
@@ -56,7 +62,7 @@ public class MachineStartStopRunnable implements Runnable{
             machine.setStatus(statusEnum);
             machineService.save(machine);
         } catch (Exception e) {
-            ErrorMassage em = new ErrorMassage(e.getMessage(),machine,user);
+            ErrorMassage em = new ErrorMassage(e.getMessage(),this.action,machine,user);
             errorMassageService.save(em);
         }
 

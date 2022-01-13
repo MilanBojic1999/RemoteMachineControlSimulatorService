@@ -21,6 +21,9 @@ public class ErrorMassage {
     @Temporal(TemporalType.TIMESTAMP)
     private Date created;
 
+    @Column(nullable = false)
+    private String action;
+
     @ManyToOne
     @JoinColumn(name = "machine_id", referencedColumnName = "id")
     private Machine machine;
@@ -29,10 +32,13 @@ public class ErrorMassage {
     @JoinColumn(name = "user",referencedColumnName = "userId")
     private User user;
 
-    public ErrorMassage(String massage,Machine machine,User user) {
+
+
+    public ErrorMassage(String massage,String action,Machine machine,User user) {
         this.massage = massage;
         this.machine = machine;
         this.user = user;
+        this.action = action;
     }
 
     public ErrorMassage() {
@@ -69,5 +75,21 @@ public class ErrorMassage {
 
     public void setMachine(Machine machine) {
         this.machine = machine;
+    }
+
+    public String getAction() {
+        return action;
+    }
+
+    public void setAction(String action) {
+        this.action = action;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

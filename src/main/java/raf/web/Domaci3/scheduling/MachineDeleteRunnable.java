@@ -43,7 +43,7 @@ public class MachineDeleteRunnable implements Runnable{
             machine.setActive(false);
             machineService.save(machine);
         }catch (Exception e){
-            ErrorMassage em = new ErrorMassage(e.getMessage(),machine,user);
+            ErrorMassage em = new ErrorMassage(e.getMessage(),"Delete",machine,user);
             errorMassageService.save(em);
         }
     }

@@ -56,7 +56,7 @@ public class MachineRestartRunnable implements Runnable{
 
             machine.setStatus(StatusEnum.RUNNING);
         } catch (Exception e) {
-            ErrorMassage em = new ErrorMassage(e.getMessage(),machine,user);
+            ErrorMassage em = new ErrorMassage(e.getMessage(),"Restart",machine,user);
             errorMassageService.save(em);
         }
 

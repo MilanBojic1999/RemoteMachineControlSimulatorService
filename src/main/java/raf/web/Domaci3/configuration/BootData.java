@@ -13,6 +13,8 @@ import raf.web.Domaci3.repositories.IMachineRepository;
 import raf.web.Domaci3.repositories.IUserRepository;
 
 import java.sql.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 
 @Component
@@ -31,6 +33,14 @@ public class BootData implements CommandLineRunner {
         this.machineRepository = machineRepository;
         this.errorMassageRepository = errorMassageRepository;
         this.encoder = encoder;
+    }
+
+    private Date parseDate(String date){
+        try{
+            return Date.valueOf(date);
+        }catch (IllegalArgumentException e){
+            return null;
+        }
     }
 
     @Override
@@ -56,9 +66,10 @@ public class BootData implements CommandLineRunner {
 
         Machine machineRoot1 = new Machine(root,"root1");
         Machine machineRoot2 = new Machine(root,"root2");
-        machineRoot2.setCreated(new Date(2020,12,1));
+        machineRoot2.setCreated(parseDate("2000-11-1"));
         Machine machineRoot3 = new Machine(root,"root3");
-        machineRoot3.setCreated(new Date(2021,11,1));
+        machineRoot3.setCreated(parseDate("2021-10-15"));
+
         Machine machineRoot4 = new Machine(root,"Fifa");
         Machine machine2 = new Machine(root,"script");
         machine2.setActive(false);
@@ -68,7 +79,8 @@ public class BootData implements CommandLineRunner {
         Machine mach4 = new Machine(user2,"super1");
         Machine mach5 = new Machine(user2,"super2");
         Machine mach6 = new Machine(user2,"super3");
-        mach6.setCreated(new Date(2021,1,1));
+        mach6.setCreated(parseDate("2021-1-1"));
+
 
         userRepository.save(root);
         userRepository.save(user1);
@@ -84,8 +96,8 @@ public class BootData implements CommandLineRunner {
         machineRepository.save(mach5);
         machineRepository.save(mach6);
 
-        ErrorMassage er1 = new ErrorMassage("Dummy massage",null,root);
-        ErrorMassage er2 = new ErrorMassage("Dummy massage2",null,root);
+        ErrorMassage er1 = new ErrorMassage("Dummy massage","Create",null,root);
+        ErrorMassage er2 = new ErrorMassage("Dummy massage2","Create",null,root);
 
         errorMassageRepository.save(er1);
         errorMassageRepository.save(er2);

@@ -34,9 +34,7 @@ import raf.web.Domaci3.services.UserService;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -152,10 +150,14 @@ public class MachineController {
 
                 taskScheduler.schedule(new MachineStartStopRunnable(this.machineService,id,StatusEnum.RUNNING,time,user,errorMassageService),ldt.atZone(ZoneId.systemDefault()).toInstant());
             }
-            return new ResponseEntity<>("Machine ("+id+") should start",HttpStatus.OK);
+            Map<String,String> map = new HashMap<>();
+            map.put("msg","Machine ("+id+") should start");
+            return new ResponseEntity<>(gson.toJson(map),HttpStatus.OK);
         }catch (Exception e){
             e.printStackTrace();
-            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+            Map<String,String> map = new HashMap<>();
+            map.put("msg",e.getMessage());
+            return new ResponseEntity<>(gson.toJson(map),HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -185,10 +187,14 @@ public class MachineController {
 
                 taskScheduler.schedule(new MachineStartStopRunnable(this.machineService,id,StatusEnum.STOPPED,time,user,errorMassageService),ldt.atZone(ZoneId.systemDefault()).toInstant());
             }
-            return new ResponseEntity<>("Machine ("+id+") should stop",HttpStatus.OK);
+            Map<String,String> map = new HashMap<>();
+            map.put("msg","Machine ("+id+") should stop");
+            return new ResponseEntity<>(gson.toJson(map),HttpStatus.OK);
         }catch (Exception e){
             e.printStackTrace();
-            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+            Map<String,String> map = new HashMap<>();
+            map.put("msg",e.getMessage());
+            return new ResponseEntity<>(gson.toJson(map),HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -219,10 +225,14 @@ public class MachineController {
 
                 taskScheduler.schedule(new MachineRestartRunnable(id,time,user,this.machineService,errorMassageService),ldt.atZone(ZoneId.systemDefault()).toInstant());
             }
-            return new ResponseEntity<>("Machine ("+id+") should stop",HttpStatus.OK);
+            Map<String,String> map = new HashMap<>();
+            map.put("msg","Machine ("+id+") should stop");
+            return new ResponseEntity<>(gson.toJson(map),HttpStatus.OK);
         }catch (Exception e){
             e.printStackTrace();
-            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+            Map<String,String> map = new HashMap<>();
+            map.put("msg",e.getMessage());
+            return new ResponseEntity<>(gson.toJson(map),HttpStatus.BAD_REQUEST);
         }
     }
 

@@ -30,7 +30,7 @@ public class MachineSpecification implements Specification<Machine> {
         }else if(criteria.getKey().equalsIgnoreCase("dateTo")){
             return criteriaBuilder.lessThanOrEqualTo(root.get("created"), Date.from(LocalDate.parse(criteria.getValue().toString(),formatter).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()));
         }else if(criteria.getKey().equalsIgnoreCase("name")){
-            return criteriaBuilder.like(root.get(criteria.getKey()), criteria.getValue().toString().toUpperCase());
+            return criteriaBuilder.like(root.get(criteria.getKey()), "%"+criteria.getValue().toString().toUpperCase()+"%");
         }else{
             return criteriaBuilder.equal(root.get(criteria.getKey()), StatusEnum.valueOf(criteria.getValue().toString()));
         }
